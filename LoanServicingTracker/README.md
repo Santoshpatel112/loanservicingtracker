@@ -1,58 +1,257 @@
-# Salesforce DX Project
+# 🏦 Enterprise Loan Servicing & EMI Tracker
+### Built with Salesforce · Apex · LWC · Premium Finspectra-style UI
 
-Salesforce DX is a development approach that brings source-driven development, team collaboration, and continuous integration to the Salesforce Platform. Instead of working directly in an org through a web browser, you work with metadata as source files in a local DX project, track changes in version control, and deploy through automated processes.
+> **Author:** Santosh Patel | **API Version:** 61.0 | **2026**
 
-This project template gets you started with the tools and structure you need to build Salesforce applications using source control, scratch orgs, and the Salesforce CLI.
+---
 
-## Prerequisites
+## 📋 Project Overview
 
-Before you start, make sure you have:
+A production-ready Salesforce application that automates EMI repayment schedule generation and provides a modern, real-time payment tracking dashboard.
 
-- **Salesforce CLI** - Download from [developer.salesforce.com/tools/salesforcecli](https://developer.salesforce.com/tools/salesforcecli). See [Install Salesforce CLI](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli.htm) for details.
-- **VS Code with Salesforce Extension Pack** - See [Installation Instructions](https://developer.salesforce.com/docs/platform/sfvscode-extensions/guide/install.html) for details. Includes the Agentforce Vibes extension.
-- **A development org** - Sign up for a free Developer Edition org [here](https://developer.salesforce.com/signup).
-- **Dev Hub enabled** (optional, required to create scratch orgs) - You can enable Dev Hub in your development org under Setup > Dev Hub.  See [Provide Developers Access to Salesforce DX Tools](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_setup_dx_tools.htm).
+### ✅ Key Features
+- **Automatic EMI Generation** — Trigger fires on Loan approval, calculates reducing-balance amortization
+- **Zero-Interest Handling** — EMI = Principal / Tenure (no division-by-zero)
+- **Duplicate Prevention** — Checks existing schedules before inserting new ones
+- **Amortization Breakdown** — Per-EMI principal, interest, and outstanding balance
+- **Bulk Handling** — Fully bulkified DML — handles 200+ loans simultaneously
+- **Premium Dashboard** — Dark Finspectra-style LWC with KPIs, progress bar, search, filters
+- **90%+ Test Coverage** — Comprehensive test class with 12+ scenarios
 
-## Project Structure
+---
 
-Your DX project follows this structure:
+## 🏗️ Project Structure
 
-- **`force-app/main/default/`** - Your metadata source files live in this default package directory. You can configure additional package directories in the `sfdx-project.json` file.
-- **`config/`** - Scratch org definitions and project settings
-- **`scripts/`** - Automation scripts for common tasks
-- **`sfdx-project.json`** - Project manifest that defines package directories, namespace, API version, and other project-level settings
+```
+LoanServicingTracker/
+├── force-app/main/default/
+│   ├── classes/
+│   │   ├── LoanController.cls              ← @AuraEnabled methods for LWC
+│   │   ├── LoanServicingHandler.cls        ← Business logic & EMI calculation
+│   │   ├── LoanServicingHandlerTest.cls    ← Comprehensive test coverage
+│   │   ├── EMIReminderEmailService.cls     ← Schedulable/Batchable email alerts
+│   │   └── EMIReminderEmailServiceTest.cls ← 100% email service test coverage
+│   │
+│   ├── triggers/
+│   │   └── LoanServicingTrigger.trigger    ← Thin trigger (Handler Pattern)
+│   │
+│   ├── objects/
+│   │   ├── Loan__c/
+│   │   │   ├── Loan__c.object-meta.xml
+│   │   │   └── fields/
+│   │   │       ├── Principal_Amount__c     (Currency)
+│   │   │       ├── Interest_Rate__c        (Percent)
+│   │   │       ├── Tenure_Months__c        (Number)
+│   │   │       ├── Status__c               (Picklist: Pending/Approved/Closed)
+│   │   │       ├── Borrower_Name__c        (Text)
+│   │   │       ├── Loan_Type__c            (Picklist)
+│   │   │       ├── Disbursement_Date__c    (Date)
+│   │   │       ├── Total_EMI_Amount__c     (Currency)
+│   │   │       ├── Total_Interest_Payable__c (Currency)
+│   │   │       └── Total_Amount_Payable__c (Currency)
+│   │   │
+│   │   └── Repayment_Schedule__c/
+│   │       ├── Repayment_Schedule__c.object-meta.xml
+│   │       └── fields/
+│   │           ├── Loan__c                 (Master-Detail → Loan__c)
+│   │           ├── EMI_Amount__c           (Currency)
+│   │           ├── Due_Date__c             (Date)
+│   │           ├── Status__c               (Picklist: Pending/Paid/Overdue)
+│   │           ├── Principal_Component__c  (Currency) ← NEW
+│   │           ├── Interest_Component__c   (Currency) ← NEW
+│   │           └── Outstanding_Balance__c  (Currency) ← NEW
+│   │
+│   ├── lwc/loanServicingDashboard/
+│   │   ├── loanServicingDashboard.html     ← Premium UI template
+│   │   ├── loanServicingDashboard.js       ← Controller with all logic
+│   │   ├── loanServicingDashboard.css      ← Finspectra dark theme CSS
+│   │   └── loanServicingDashboard.js-meta.xml
+│   │
+│   └── flexipages/
+│       └── Loan_Record_Page.flexipage-meta.xml
+│
+├── sfdx-project.json
+└── README.md
+```
 
-See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm).
+---
 
-## Get Started
+## 🚀 Quick Setup Guide
 
-Ready to start developing? The [Get Started with Salesforce DX](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_get_started_dx.htm) guide walks you through your first project, from creating a scratch org to creating a simple Apex class or LWC to deploying your code to a sandbox.
+### Prerequisites
+```bash
+node --version    # v18+ required
+sf --version      # Salesforce CLI 2.x
+```
 
-## Common Salesforce CLI Commands
+### Step 1 — Clone / Open Project
+```bash
+cd "LoanServicingTracker"
+code .
+```
 
-Here are common CLI commands that you'll use the most:
+### Step 2 — Authorize Salesforce Org
+```bash
+sf org login web --alias LoanDevOrg
+sf config set target-org=LoanDevOrg
+sf org display
+```
 
-- `sf org login web`: Authorize an org
-- `sf org open`: Open your org in a browser
-- `sf org create scratch`: Create a scratch org
-- `sf project deploy start`: Deploy metadata to your org
-- `sf project retrieve start`: Retrieve metadata from your org
-- `sf template generate <artifact>`: Scaffold new components, such as Apex classes and triggers, LWC components, Lightning apps, and more
-- `sf apex <command>`: Run Apex tests, run anonymous Apex blocks, and view logs
-- `sf data <command>`: Work with test data
-- `sf alias <command>`: Manage org aliases
-- `sf config <command>`: Configure CLI settings
+### Step 3 — Deploy Objects First
+```bash
+sf project deploy start --source-dir force-app/main/default/objects
+```
 
-## Use Agentforce Vibes to Build Lightning Apps
+### Step 4 — Deploy All Metadata
+```bash
+sf project deploy start --source-dir force-app/main/default
+```
 
-Transform your ideas into custom Lightning apps that extend CRM workflows directly in Lightning Experience. Through natural conversations with Agentforce Vibes, implement custom objects and fields, complex business logic, and dynamic UI components. See [Build a Lightning App Using Agentforce Vibes](https://developer.salesforce.com/docs/platform/einstein-for-devs/guide/lexapp-overview.html).
+### Step 5 — Run Apex Tests
+```bash
+sf apex run test --test-level RunLocalTests --wait 10 --result-format human
+```
 
-## Additional Resources
+### Step 6 — Verify in Org
+1. Go to **App Launcher** → search `Loan`
+2. Create a new **Loan** record (Status = Pending)
+3. Edit → change **Status to Approved** → Save
+4. Verify **Repayment Schedule** records are generated
+5. Open **Loan Record Page** → add `loanServicingDashboard` LWC
+6. Click **Mark Paid** on any EMI
 
-- [Agentforce Vibes Developer Guide](https://developer.salesforce.com/docs/platform/einstein-for-devs/guide/einstein-overview.html)
-- [Salesforce CLI Installation Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/)
-- [Salesforce CLI Plugin Development Guide](https://developer.salesforce.com/docs/platform/salesforce-cli-plugin/guide/conceptual-overview.html)
-- [Salesforce VS Code Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
+---
 
+## 🧠 Architecture
+
+```
+                    ┌─────────────────┐
+                    │    Loan__c      │
+                    │  Status=Approved│
+                    └────────┬────────┘
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │ LoanServicingTrigger │  (thin — delegates)
+                  └──────────┬──────────┘
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │ LoanServicingHandler │
+                  │                     │
+                  │  • Duplicate check  │
+                  │  • EMI formula      │
+                  │  • Amortization     │
+                  │  • Bulk insert      │
+                  └──────────┬──────────┘
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │ Repayment_Schedule__c│
+                  │                     │
+                  │  EMI-0001..EMI-00N  │
+                  └──────────┬──────────┘
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │   LoanController    │  @AuraEnabled methods
+                  │                     │
+                  │  getLoanSchedules() │
+                  │  getLoanDetails()   │
+                  │  getSummaryStats()  │
+                  │  markAsPaid()       │
+                  │  markMultiplePaid() │
+                  └──────────┬──────────┘
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │  loanServicingDash  │  LWC Dashboard
+                  │                     │
+                  │  ■ KPI Cards        │
+                  │  ■ Progress Bar     │
+                  │  ■ Loan Summary     │
+                  │  ■ EMI Table        │
+                  │  ■ Search/Filter    │
+                  │  ■ Mark as Paid     │
+                  │  ■ Toast Alerts     │
+                  └─────────────────────┘
+```
+
+---
+
+## 💡 EMI Formula
+
+**Reducing-Balance Amortization:**
+
+```
+Monthly Rate (r) = Annual Rate / 12 / 100
+EMI = P × r × (1+r)^n / ((1+r)^n - 1)
+
+Where:
+  P = Principal Amount
+  r = Monthly Interest Rate
+  n = Tenure in Months
+```
+
+**Zero-Interest edge case:**
+```
+EMI = Principal / Tenure
+```
+
+---
+
+## 🎨 Dashboard Features
+
+| Feature | Details |
+|---------|---------|
+| **Theme** | Dark mode (Finspectra-inspired) |
+| **KPI Cards** | Total, Paid, Pending, Overdue with animated glows |
+| **Progress Bar** | Gradient shimmer animation |
+| **Loan Stats** | Principal, Rate, Tenure, EMI, Total Payable |
+| **Table** | Per-EMI principal, interest, outstanding balance |
+| **Search** | Real-time name/status filtering |
+| **Status Filters** | All / Pending / Paid / Overdue tabs |
+| **Mark as Paid** | Optimistic UI with loading state |
+| **Toast Notifications** | Success/error with auto-dismiss |
+| **Responsive** | Mobile-first, works on all screen sizes |
+
+---
+
+## 🧪 Test Scenarios Covered
+
+| Test | Scenario |
+|------|----------|
+| `testLoanApprovalGeneratesSchedules` | Standard 12-month loan approval |
+| `testDirectInsertApprovedLoan` | Insert with Approved status |
+| `testZeroInterestLoan` | 0% annual rate — EMI = P/N |
+| `testDuplicateSchedulePrevention` | Approved→Pending→Approved no dup |
+| `testPendingLoanNoSchedules` | Pending loan = no schedules |
+| `testBulkLoanApproval` | 20 loans × 12 months = 240 records |
+| `testGetLoanSchedules` | Controller SOQL fetch |
+| `testGetLoanSchedulesNullId` | Null input guard |
+| `testMarkAsPaid` | DML update to Paid |
+| `testMarkAsPaidAlreadyPaid` | Guard: already-paid exception |
+| `testMarkMultipleAsPaid` | Bulk Paid update |
+| `testGetLoanDetails` | Loan header data fetch |
+| `testGetLoanSummaryStats` | KPI aggregation |
+| `test24MonthTenure` | Extended 24-month tenure |
+
+---
+
+## 📝 Salesforce Concepts Demonstrated
+
+| Concept | Implementation |
+|---------|----------------|
+| Custom Objects | Loan__c, Repayment_Schedule__c |
+| Master-Detail | Repayment → Loan |
+| Apex Trigger | After insert/update on Loan__c |
+| Trigger Handler Pattern | Thin trigger → Handler class |
+| Bulkified DML | List collect + single insert |
+| SOQL | Indexed queries with ORDER BY |
+| @AuraEnabled | 5 controller methods |
+| @wire | 3 wire adapters in LWC |
+| refreshApex | UI refresh post-DML |
+| LWC CSS | Scoped :host design tokens |
+| Error Handling | AuraHandledException |
+| with sharing | Record-level security |
+| Test Class | 90%+ coverage, 14 test methods |

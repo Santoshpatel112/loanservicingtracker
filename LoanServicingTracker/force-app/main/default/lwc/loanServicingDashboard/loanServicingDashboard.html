@@ -1,0 +1,369 @@
+<template>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         Prizm Loan Servicing Dashboard — Modern Enterprise UI
+         Author: Santosh Patel | 2026
+    ════════════════════════════════════════════════════════════════════════ -->
+    <div class={dashboardClass}>
+
+        <!-- ── Loading Spinner ──────────────────────────────────────────────── -->
+        <template if:true={isLoading}>
+            <div class="ps-loading-overlay">
+                <div class="ps-spinner-container">
+                    <div class="ps-spinner"></div>
+                    <p class="ps-spinner-text">Loading EMI Schedule...</p>
+                </div>
+            </div>
+        </template>
+
+        <!-- ── Dashboard Header ─────────────────────────────────────────────── -->
+        <div class="ps-header">
+            <div class="ps-header-left">
+                <div class="ps-logo-mark">
+                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                        <rect width="36" height="36" rx="10" fill="url(#logoGrad)"/>
+                        <path d="M8 26L18 10L28 26" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 21H24" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="18" cy="10" r="2" fill="white"/>
+                        <defs>
+                            <linearGradient id="logoGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#6366f1"/>
+                                <stop offset="100%" stop-color="#8b5cf6"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="ps-header-title-group">
+                    <h1 class="ps-header-title">EMI Repayment Tracker</h1>
+                    <p class="ps-header-subtitle">
+                        <template if:true={loanDetails}>
+                            {loanDetails.Name} &bull; {loanDetails.Borrower_Name__c} &bull; {loanDetails.Loan_Type__c}
+                        </template>
+                        <template if:false={loanDetails}>
+                            Prizm Loan Servicing Platform
+                        </template>
+                    </p>
+                </div>
+            </div>
+            <div class="ps-header-right">
+                <div class={statusBadgeClass}>
+                    <span class="ps-status-dot"></span>
+                    <span>{loanStatusLabel}</span>
+                </div>
+                <button class="ps-btn ps-btn-ghost" onclick={handleRefresh} title="Refresh Dashboard">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- ── KPI Cards Row ─────────────────────────────────────────────────── -->
+        <template if:true={summaryStats}>
+            <div class="ps-kpi-grid">
+
+                <!-- Total EMI -->
+                <div class="ps-kpi-card ps-kpi-total">
+                    <div class="ps-kpi-icon ps-icon-blue">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                    </div>
+                    <div class="ps-kpi-content">
+                        <span class="ps-kpi-label">Total Installments</span>
+                        <span class="ps-kpi-value">{summaryStats.totalCount}</span>
+                        <span class="ps-kpi-sub">EMI schedule generated</span>
+                    </div>
+                    <div class="ps-kpi-glow ps-glow-blue"></div>
+                </div>
+
+                <!-- Paid -->
+                <div class="ps-kpi-card ps-kpi-paid">
+                    <div class="ps-kpi-icon ps-icon-green">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                    <div class="ps-kpi-content">
+                        <span class="ps-kpi-label">Paid EMIs</span>
+                        <span class="ps-kpi-value ps-text-green">{summaryStats.paidCount}</span>
+                        <span class="ps-kpi-sub">₹ {formattedTotalPaid} received</span>
+                    </div>
+                    <div class="ps-kpi-glow ps-glow-green"></div>
+                </div>
+
+                <!-- Pending -->
+                <div class="ps-kpi-card ps-kpi-pending">
+                    <div class="ps-kpi-icon ps-icon-amber">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <div class="ps-kpi-content">
+                        <span class="ps-kpi-label">Pending EMIs</span>
+                        <span class="ps-kpi-value ps-text-amber">{summaryStats.pendingCount}</span>
+                        <span class="ps-kpi-sub">₹ {formattedTotalPending} due</span>
+                    </div>
+                    <div class="ps-kpi-glow ps-glow-amber"></div>
+                </div>
+
+                <!-- Overdue -->
+                <div class="ps-kpi-card ps-kpi-overdue">
+                    <div class="ps-kpi-icon ps-icon-red">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </div>
+                    <div class="ps-kpi-content">
+                        <span class="ps-kpi-label">Overdue EMIs</span>
+                        <span class="ps-kpi-value ps-text-red">{summaryStats.overdueCount}</span>
+                        <span class="ps-kpi-sub">Immediate attention needed</span>
+                    </div>
+                    <div class="ps-kpi-glow ps-glow-red"></div>
+                </div>
+
+            </div>
+        </template>
+
+        <!-- ── Progress Section ─────────────────────────────────────────────── -->
+        <template if:true={summaryStats}>
+            <div class="ps-progress-section">
+                <div class="ps-progress-header">
+                    <div class="ps-progress-info">
+                        <span class="ps-progress-label">Loan Repayment Progress</span>
+                        <span class="ps-progress-detail">{summaryStats.paidCount} of {summaryStats.totalCount} EMIs Paid</span>
+                    </div>
+                    <div class="ps-progress-pct">{summaryStats.progressPct}%</div>
+                </div>
+                <div class="ps-progress-track">
+                    <div class="ps-progress-fill" style={progressBarStyle}></div>
+                </div>
+                <div class="ps-progress-milestones">
+                    <span>0%</span>
+                    <span>25%</span>
+                    <span>50%</span>
+                    <span>75%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+        </template>
+
+        <!-- ── Loan Details Summary Bar ──────────────────────────────────────── -->
+        <template if:true={loanDetails}>
+            <div class="ps-loan-summary-bar">
+                <div class="ps-loan-stat">
+                    <span class="ps-loan-stat-label">Principal</span>
+                    <span class="ps-loan-stat-value">₹ {formattedPrincipal}</span>
+                </div>
+                <div class="ps-loan-divider"></div>
+                <div class="ps-loan-stat">
+                    <span class="ps-loan-stat-label">Interest Rate</span>
+                    <span class="ps-loan-stat-value">{loanDetails.Interest_Rate__c}% p.a.</span>
+                </div>
+                <div class="ps-loan-divider"></div>
+                <div class="ps-loan-stat">
+                    <span class="ps-loan-stat-label">Tenure</span>
+                    <span class="ps-loan-stat-value">{loanDetails.Tenure_Months__c} Months</span>
+                </div>
+                <div class="ps-loan-divider"></div>
+                <div class="ps-loan-stat">
+                    <span class="ps-loan-stat-label">Monthly EMI</span>
+                    <span class="ps-loan-stat-value ps-highlight">₹ {formattedEMI}</span>
+                </div>
+                <div class="ps-loan-divider"></div>
+                <div class="ps-loan-stat">
+                    <span class="ps-loan-stat-label">Total Payable</span>
+                    <span class="ps-loan-stat-value">₹ {formattedTotalPayable}</span>
+                </div>
+            </div>
+        </template>
+
+        <!-- ── Table Toolbar ─────────────────────────────────────────────────── -->
+        <div class="ps-table-toolbar">
+            <div class="ps-toolbar-left">
+                <h2 class="ps-table-heading">EMI Schedule</h2>
+                <span class="ps-record-count">{scheduleCount} records</span>
+            </div>
+            <div class="ps-toolbar-right">
+                <!-- Search -->
+                <div class="ps-search-box">
+                    <svg class="ps-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                        type="text"
+                        class="ps-search-input"
+                        placeholder="Search by name or status..."
+                        value={searchTerm}
+                        oninput={handleSearch}
+                        id="emi-search-input"
+                    />
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="ps-filter-tabs">
+                    <button class={filterAllClass} onclick={handleFilterAll} data-filter="All">All</button>
+                    <button class={filterPendingClass} onclick={handleFilterPending} data-filter="Pending">Pending</button>
+                    <button class={filterPaidClass} onclick={handleFilterPaid} data-filter="Paid">Paid</button>
+                    <button class={filterOverdueClass} onclick={handleFilterOverdue} data-filter="Overdue">Overdue</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── EMI Schedule Table ─────────────────────────────────────────────── -->
+        <div class="ps-table-wrapper">
+            <template if:true={hasSchedules}>
+                <table class="ps-table" id="emi-datatable">
+                    <thead>
+                        <tr>
+                            <th class="ps-th ps-th-num">#</th>
+                            <th class="ps-th">EMI Reference</th>
+                            <th class="ps-th ps-th-right">EMI Amount</th>
+                            <th class="ps-th ps-th-right">Principal</th>
+                            <th class="ps-th ps-th-right">Interest</th>
+                            <th class="ps-th ps-th-right">Outstanding</th>
+                            <th class="ps-th">Due Date</th>
+                            <th class="ps-th ps-th-center">Status</th>
+                            <th class="ps-th ps-th-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={filteredSchedules} for:item="schedule">
+                            <tr key={schedule.Id} class={schedule.rowClass}>
+                                <td class="ps-td ps-td-num ps-td-muted">{schedule.rowIndex}</td>
+                                <td class="ps-td">
+                                    <div class="ps-emi-name-cell">
+                                        <div class="ps-emi-dot" data-status={schedule.Status__c}></div>
+                                        <span class="ps-emi-name">{schedule.Name}</span>
+                                    </div>
+                                </td>
+                                <td class="ps-td ps-td-right ps-td-bold">₹ {schedule.formattedEmi}</td>
+                                <td class="ps-td ps-td-right ps-td-muted">{schedule.formattedPrincipal}</td>
+                                <td class="ps-td ps-td-right ps-td-muted">{schedule.formattedInterest}</td>
+                                <td class="ps-td ps-td-right ps-td-muted">{schedule.formattedBalance}</td>
+                                <td class="ps-td">
+                                    <div class="ps-date-cell">
+                                        <span class="ps-date-day">{schedule.dueDateDay}</span>
+                                        <span class="ps-date-month-year">{schedule.dueDateMonthYear}</span>
+                                    </div>
+                                </td>
+                                <td class="ps-td ps-td-center">
+                                    <span class={schedule.statusBadgeClass}>{schedule.Status__c}</span>
+                                </td>
+                                <td class="ps-td ps-td-center">
+                                    <template if:false={schedule.isPaid}>
+                                        <button
+                                            class="ps-btn-pay"
+                                            onclick={handleMarkPaid}
+                                            data-id={schedule.Id}
+                                            data-name={schedule.Name}
+                                            id={schedule.actionButtonId}
+                                            disabled={schedule.isProcessing}>
+                                            <template if:false={schedule.isProcessing}>
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                                </svg>
+                                                Mark Paid
+                                            </template>
+                                            <template if:true={schedule.isProcessing}>
+                                                <span class="ps-btn-spinner"></span>
+                                                Processing...
+                                            </template>
+                                        </button>
+                                    </template>
+                                    <template if:true={schedule.isPaid}>
+                                        <span class="ps-paid-check">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                            Paid
+                                        </span>
+                                    </template>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+                <!-- ── Amortization Summary Footer ───────────────────────────── -->
+                <div class="ps-table-footer">
+                    <div class="ps-footer-stat">
+                        <span class="ps-footer-label">Total EMI Paid</span>
+                        <span class="ps-footer-value ps-text-green">₹ {formattedTotalPaid}</span>
+                    </div>
+                    <div class="ps-footer-stat">
+                        <span class="ps-footer-label">Total Remaining</span>
+                        <span class="ps-footer-value ps-text-amber">₹ {formattedTotalPending}</span>
+                    </div>
+                    <div class="ps-footer-stat">
+                        <span class="ps-footer-label">Showing Records</span>
+                        <span class="ps-footer-value">{filteredCount} / {scheduleCount}</span>
+                    </div>
+                </div>
+
+            </template>
+
+            <!-- ── Empty State ──────────────────────────────────────────────── -->
+            <template if:false={hasSchedules}>
+                <div class="ps-empty-state">
+                    <div class="ps-empty-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="ps-empty-title">No EMI Schedules Found</h3>
+                    <p class="ps-empty-desc">
+                        <template if:true={hasError}>
+                            {errorMessage}
+                        </template>
+                        <template if:false={hasError}>
+                            Approve the loan to automatically generate the repayment schedule.
+                        </template>
+                    </p>
+                    <template if:true={hasError}>
+                        <button class="ps-btn ps-btn-primary" onclick={handleRefresh}>Try Again</button>
+                    </template>
+                </div>
+            </template>
+        </div>
+
+        <!-- ── Toast Notification ───────────────────────────────────────────── -->
+        <template if:true={showToast}>
+            <div class={toastClass} role="alert">
+                <div class="ps-toast-icon">
+                    <template if:true={toastSuccess}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </template>
+                    <template if:false={toastSuccess}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                    </template>
+                </div>
+                <div class="ps-toast-body">
+                    <span class="ps-toast-title">{toastTitle}</span>
+                    <span class="ps-toast-message">{toastMessage}</span>
+                </div>
+                <button class="ps-toast-close" onclick={handleCloseToast}>×</button>
+            </div>
+        </template>
+
+    </div>
+</template>

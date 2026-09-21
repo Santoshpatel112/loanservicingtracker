@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Borrower_Email__c</fullName>
+    <description>Email address of the borrower for EMI due date notifications.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Enter the email where payment alerts and EMI due notifications will be sent.</inlineHelpText>
+    <label>Borrower Email</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Email</type>
+    <unique>false</unique>
+</CustomField>
