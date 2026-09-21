@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Interactive Loan Origination, Servicing &amp; EMI Calculator Portal</description>
+    <label>Loan Dashboard</label>
+    <lwcComponent>loanServicingDashboard</lwcComponent>
+    <motif>Custom40: Credit card</motif>
+</CustomTab>

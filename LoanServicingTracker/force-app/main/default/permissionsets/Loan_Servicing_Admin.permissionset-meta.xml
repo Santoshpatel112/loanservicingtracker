@@ -106,6 +106,14 @@
         <object>Repayment_Schedule__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
+    <applicationVisibilities>
+        <application>Loan_Servicing_Tracker</application>
+        <visible>true</visible>
+    </applicationVisibilities>
+    <tabSettings>
+        <tab>Loan_Dashboard</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
     <tabSettings>
         <tab>Loan__c</tab>
         <visibility>Visible</visibility>
@@ -115,3 +123,4 @@
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>
+

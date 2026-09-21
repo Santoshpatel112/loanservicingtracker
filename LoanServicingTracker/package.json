@@ -5,6 +5,10 @@
   "description": "Salesforce App",
   "scripts": {
     "lint": "eslint **/{aura,lwc}/**/*.js",
+    "deploy": "sf project deploy start",
+    "open": "sf org open --path /lightning/app/c__Loan_Servicing_Tracker",
+    "open:dashboard": "sf org open --path /lightning/n/Loan_Dashboard",
+    "assign:perm": "sf org assign permset --name Loan_Servicing_Admin",
     "test": "npm run test:unit",
     "test:unit": "sfdx-lwc-jest",
     "test:unit:watch": "sfdx-lwc-jest --watch",
