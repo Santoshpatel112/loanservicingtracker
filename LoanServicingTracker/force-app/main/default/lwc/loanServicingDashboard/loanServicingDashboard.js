@@ -1,8 +1,8 @@
 /**
  * @description       : LWC Controller for Finspectra Prizm Loan Servicing & Repayment Platform.
- *                      Enforces strict role-based authentication and separate portal routing:
- *                      - Administrator (santoshpatelvns5@gmail.com) ➔ Admin CRM Master Center ONLY
- *                      - Regular Borrower ➔ Borrower Self-Service Portal ONLY
+ *                      Enforces Home Landing Page with Interactive Toggle (Sign In ⟷ Register),
+ *                      Live Dynamic EMI Simulator & Calculator with Sliders,
+ *                      and Strict Role-Based Protected Views (Admin santoshpatelvns5@gmail.com vs Borrower).
  * @author            : Santosh Patel (santoshpatelvns5@gmail.com)
  * @created           : 2026
  * @last modified on  : 2026-09-21
@@ -42,6 +42,11 @@ export default class LoanServicingDashboard extends LightningElement {
     @track regEmail          = '';
     @track regPhone          = '';
     @track regPassword       = '';
+
+    // ─── Live Dynamic EMI Simulator State (Landing Page) ─────────────────────
+    @track simPrincipal      = 500000;
+    @track simInterestRate   = 10.5;
+    @track simTenure         = 12;
 
     // ─── Common UI State ─────────────────────────────────────────────────────
     @track selectedLoanId    = null;
@@ -136,16 +141,102 @@ export default class LoanServicingDashboard extends LightningElement {
     }
 
     get loginTabClass() {
-        return this.isLoginMode ? 'ps-auth-tab ps-auth-tab-active' : 'ps-auth-tab';
+        return this.isLoginMode ? 'ps-toggle-btn ps-toggle-btn-active' : 'ps-toggle-btn';
     }
 
     get registerTabClass() {
-        return !this.isLoginMode ? 'ps-auth-tab ps-auth-tab-active' : 'ps-auth-tab';
+        return !this.isLoginMode ? 'ps-toggle-btn ps-toggle-btn-active' : 'ps-toggle-btn';
     }
 
     get userInitials() {
         const name = this.currentUserName;
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    }
+
+    // ─── Dynamic Live EMI Simulator Calculations (Landing Page) ──────────────
+
+    handleSimPrincipalChange(e) {
+        this.simPrincipal = parseFloat(e.target.value) || 0;
+    }
+
+    handleSimRateChange(e) {
+        this.simInterestRate = parseFloat(e.target.value) || 0;
+    }
+
+    handleSimTenureChange(e) {
+        this.simTenure = parseInt(e.target.value, 10) || 1;
+    }
+
+    get formattedSimPrincipal() {
+        return this._formatCurrency(this.simPrincipal);
+    }
+
+    get simEMI() {
+        const p = this.simPrincipal;
+        const r = (this.simInterestRate / 12) / 100;
+        const n = this.simTenure;
+
+        if (p <= 0 || n <= 0) return '0.00';
+        if (r === 0) return this._formatCurrency(p / n);
+
+        const pow = Math.pow(1 + r, n);
+        const emi = (p * r * pow) / (pow - 1);
+        return this._formatCurrency(emi);
+    }
+
+    get simTotalPayableRaw() {
+        const p = this.simPrincipal;
+        const r = (this.simInterestRate / 12) / 100;
+        const n = this.simTenure;
+
+        if (p <= 0 || n <= 0) return 0;
+        if (r === 0) return p;
+
+        const pow = Math.pow(1 + r, n);
+        const emi = (p * r * pow) / (pow - 1);
+        return emi * n;
+    }
+
+    get simTotalPayable() {
+        return this._formatCurrency(this.simTotalPayableRaw);
+    }
+
+    get simTotalInterest() {
+        const total = this.simTotalPayableRaw;
+        const interest = Math.max(0, total - this.simPrincipal);
+        return this._formatCurrency(interest);
+    }
+
+    get simPrincipalPct() {
+        const total = this.simTotalPayableRaw;
+        if (total <= 0) return 100;
+        return Math.round((this.simPrincipal / total) * 100);
+    }
+
+    get simInterestPct() {
+        return 100 - this.simPrincipalPct;
+    }
+
+    get simPrincipalBarStyle() {
+        return `width: ${this.simPrincipalPct}%`;
+    }
+
+    get simInterestBarStyle() {
+        return `width: ${this.simInterestPct}%`;
+    }
+
+    handleApplyWithSimParams() {
+        this.applyForm.principal    = this.simPrincipal;
+        this.applyForm.interestRate = this.simInterestRate;
+        this.applyForm.tenure       = this.simTenure;
+
+        this.authMode = 'register';
+        this._showToast(
+            'Parameters Selected',
+            `Selected ₹ ${this.formattedSimPrincipal} at ${this.simInterestRate}% for ${this.simTenure} months. Complete your registration above!`,
+            true
+        );
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ─── Authentication Handlers ─────────────────────────────────────────────
@@ -236,7 +327,7 @@ export default class LoanServicingDashboard extends LightningElement {
                 this.isAuthenticated = true;
                 this._showToast(
                     'Account Created',
-                    `Welcome ${profile.name}! Your account has been registered successfully.`,
+                    `Welcome ${profile.name}! Your borrower account is active.`,
                     true
                 );
                 return this._refreshAll();
@@ -341,7 +432,7 @@ export default class LoanServicingDashboard extends LightningElement {
         });
     }
 
-    // ─── Real-Time Live EMI Calculator Preview ───────────────────────────────
+    // ─── Real-Time Live EMI Calculator Preview (Modal) ───────────────────────
 
     get previewEMI() {
         const p = parseFloat(this.applyForm.principal) || 0;
@@ -557,7 +648,6 @@ export default class LoanServicingDashboard extends LightningElement {
     // ─── Modal 1: Loan Application ───────────────────────────────────────────
 
     handleOpenApplyModal() {
-        // Pre-fill borrower name and email from current session
         this.applyForm.borrowerName  = this.currentUserName;
         this.applyForm.borrowerEmail = this.currentUserEmail;
         this.showApplyModal = true;

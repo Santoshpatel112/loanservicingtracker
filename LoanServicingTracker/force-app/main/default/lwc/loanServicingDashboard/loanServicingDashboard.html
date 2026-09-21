@@ -1,8 +1,9 @@
 <template>
     <!-- ═══════════════════════════════════════════════════════════════════════
-         Finspectra Prizm — Role-Protected Loan Servicing & Repayment Platform
-         Role 1: Admin (santoshpatelvns5@gmail.com) ➔ Admin CRM Master Center ONLY
-         Role 2: Borrower (Registered User) ➔ Borrower Self-Service Portal ONLY
+         Finspectra Prizm — Enterprise Loan Origination & Servicing Platform
+         Home Landing Page with Interactive Toggle (Sign In ⟷ Register),
+         Live Dynamic EMI Simulator, Bento Capabilities Showcase,
+         and Strict Role-Protected Dashboards (Admin santoshpatelvns5@gmail.com vs Borrower).
          Author: Santosh Patel (santoshpatelvns5@gmail.com) | 2026
     ════════════════════════════════════════════════════════════════════════ -->
     <div class="ps-dashboard">
@@ -18,173 +19,424 @@
         </template>
 
         <!-- ═══════════════════════════════════════════════════════════════════
-             VIEW 1: AUTHENTICATION PORTAL (LOGIN & REGISTRATION)
-             Rendered when user is NOT authenticated
+             STATE 1: HOME LANDING PAGE (UNAUTHENTICATED)
+             Inspired by Finspectra Prizm Loan Servicing Software
         ════════════════════════════════════════════════════════════════════ -->
         <template if:false={isAuthenticated}>
-            <div class="ps-auth-container">
-                <div class="ps-auth-card">
-                    
-                    <!-- Branding Header -->
-                    <div class="ps-auth-header">
-                        <div class="ps-brand-logo">
-                            <svg width="42" height="42" viewBox="0 0 36 36" fill="none">
-                                <rect width="36" height="36" rx="10" fill="url(#authLogoGrad)"/>
-                                <path d="M8 26L18 10L28 26" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M12 21H24" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                                <circle cx="18" cy="10" r="2" fill="white"/>
-                                <defs>
-                                    <linearGradient id="authLogoGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0%" stop-color="#6366f1"/>
-                                        <stop offset="100%" stop-color="#a855f7"/>
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                        </div>
+            
+            <!-- ── Top Landing Navbar ───────────────────────────────────────── -->
+            <div class="ps-home-navbar">
+                <div class="ps-navbar-left">
+                    <div class="ps-brand-logo">
+                        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                            <rect width="36" height="36" rx="10" fill="url(#prizmHomeGrad)"/>
+                            <path d="M8 26L18 10L28 26" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 21H24" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="18" cy="10" r="2" fill="white"/>
+                            <defs>
+                                <linearGradient id="prizmHomeGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#6366f1"/>
+                                    <stop offset="100%" stop-color="#a855f7"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="ps-brand-text">
                         <span class="ps-brand-tag">FINSPECTRA PRIZM</span>
-                        <h2 class="ps-auth-title">Loan Servicing & Repayment Platform</h2>
-                        <p class="ps-auth-subtitle">Enterprise Role-Based FinTech Access Control</p>
+                        <h1 class="ps-brand-title">Loan Servicing Software</h1>
+                    </div>
+                </div>
+
+                <div class="ps-navbar-right">
+                    <button class="ps-btn ps-btn-ghost ps-btn-sm" onclick={handleQuickLoginBorrower}>
+                        👤 Borrower Portal
+                    </button>
+                    <button class="ps-btn ps-btn-primary ps-btn-sm" onclick={handleQuickLoginAdmin}>
+                        👑 Admin Console ({adminEmail})
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── Hero Section with Integrated Auth Hub ─────────────────────── -->
+            <div class="ps-hero-section">
+                
+                <!-- Hero Left: Value Proposition & Live Metrics -->
+                <div class="ps-hero-left">
+                    <div class="ps-pill-badge">
+                        <span class="ps-pill-pulse"></span>
+                        <span>Enterprise Cloud-Native Loan Servicing</span>
+                    </div>
+                    
+                    <h2 class="ps-hero-headline">
+                        Streamline Loan Servicing.<br>
+                        <span class="ps-gradient-text">Accelerate Repayments.</span><br>
+                        Delight Customers.
+                    </h2>
+                    
+                    <p class="ps-hero-description">
+                        Automate reducing-balance amortization schedules, dispatch recursive email reminders, receive instant payment receipts, and empower your credit operations with real-time portfolio intelligence.
+                    </p>
+
+                    <!-- Live Platform Metrics Strip -->
+                    <div class="ps-hero-metrics">
+                        <div class="ps-hero-metric-item">
+                            <span class="ps-hero-metric-val">100%</span>
+                            <span class="ps-hero-metric-lbl">Automated Amortization</span>
+                        </div>
+                        <div class="ps-hero-metric-divider"></div>
+                        <div class="ps-hero-metric-item">
+                            <span class="ps-hero-metric-val">0-Touch</span>
+                            <span class="ps-hero-metric-lbl">Email Reminder Loops</span>
+                        </div>
+                        <div class="ps-hero-metric-divider"></div>
+                        <div class="ps-hero-metric-item">
+                            <span class="ps-hero-metric-val">Instant</span>
+                            <span class="ps-hero-metric-lbl">Payment Receipt Dispatch</span>
+                        </div>
                     </div>
 
-                    <!-- Auth Mode Tabs (Sign In / Register) -->
-                    <div class="ps-auth-tabs">
-                        <button class={loginTabClass} onclick={handleSwitchToLogin}>Sign In</button>
-                        <button class={registerTabClass} onclick={handleSwitchToRegister}>Register Borrower</button>
+                    <!-- Feature Bullet Chips -->
+                    <div class="ps-chip-list">
+                        <span class="ps-chip">✓ Reducing-Balance Math</span>
+                        <span class="ps-chip">✓ Schedulable Batch Apex</span>
+                        <span class="ps-chip">✓ 0-100% Progress Tracking</span>
+                        <span class="ps-chip">✓ Strict Role Protection</span>
                     </div>
+                </div>
 
-                    <!-- ── LOGIN FORM ── -->
-                    <template if:true={isLoginMode}>
-                        <div class="ps-auth-form">
-                            <div class="ps-form-group">
-                                <label class="ps-label">Email Address</label>
-                                <input
-                                    type="email"
-                                    class="ps-input"
-                                    placeholder="e.g. santoshpatelvns5@gmail.com or borrower@mail.com"
-                                    value={loginEmail}
-                                    oninput={handleLoginEmailChange}
-                                />
-                            </div>
-                            <div class="ps-form-group">
-                                <label class="ps-label">Password</label>
-                                <input
-                                    type="password"
-                                    class="ps-input"
-                                    placeholder="Enter your account password"
-                                    value={loginPassword}
-                                    oninput={handleLoginPasswordChange}
-                                    onkeydown={handleLoginKeyDown}
-                                />
-                            </div>
-
-                            <button class="ps-btn ps-btn-primary ps-btn-full" onclick={handleLoginSubmit}>
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <!-- Hero Right: Dynamic Interactive Auth Card with Smooth Toggle -->
+                <div class="ps-hero-right">
+                    <div class="ps-auth-card">
+                        
+                        <!-- Toggle Pill (Sign In ⟷ Register) -->
+                        <div class="ps-toggle-container">
+                            <button class={loginTabClass} onclick={handleSwitchToLogin}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
                                     <polyline points="10 17 15 12 10 7"></polyline>
                                     <line x1="15" y1="12" x2="3" y2="12"></line>
                                 </svg>
-                                Secure Sign In
+                                Sign In
                             </button>
-
-                            <!-- Demo Quick Login Shortcuts -->
-                            <div class="ps-demo-box">
-                                <div class="ps-demo-title">⚡ Quick 1-Click Role Login:</div>
-                                <div class="ps-demo-btns">
-                                    <button class="ps-demo-btn ps-demo-admin" onclick={handleQuickLoginAdmin}>
-                                        👑 Admin ({adminEmail})
-                                    </button>
-                                    <button class="ps-demo-btn ps-demo-user" onclick={handleQuickLoginBorrower}>
-                                        👤 Borrower (Priya Sharma)
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-
-                    <!-- ── REGISTRATION FORM ── -->
-                    <template if:false={isLoginMode}>
-                        <div class="ps-auth-form">
-                            <div class="ps-form-group">
-                                <label class="ps-label">Full Name *</label>
-                                <input
-                                    type="text"
-                                    class="ps-input"
-                                    placeholder="e.g. Priya Sharma"
-                                    value={regName}
-                                    oninput={handleRegNameChange}
-                                />
-                            </div>
-                            <div class="ps-form-group">
-                                <label class="ps-label">Email Address *</label>
-                                <input
-                                    type="email"
-                                    class="ps-input"
-                                    placeholder="e.g. priya.sharma@example.com"
-                                    value={regEmail}
-                                    oninput={handleRegEmailChange}
-                                />
-                            </div>
-                            <div class="ps-form-group">
-                                <label class="ps-label">Phone Number</label>
-                                <input
-                                    type="tel"
-                                    class="ps-input"
-                                    placeholder="e.g. +91 9876543210"
-                                    value={regPhone}
-                                    oninput={handleRegPhoneChange}
-                                />
-                            </div>
-                            <div class="ps-form-group">
-                                <label class="ps-label">Password (min 6 chars) *</label>
-                                <input
-                                    type="password"
-                                    class="ps-input"
-                                    placeholder="Create a strong password"
-                                    value={regPassword}
-                                    oninput={handleRegPasswordChange}
-                                />
-                            </div>
-
-                            <button class="ps-btn ps-btn-accent ps-btn-full" onclick={handleRegisterSubmit}>
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <button class={registerTabClass} onclick={handleSwitchToRegister}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="8.5" cy="7" r="4"></circle>
                                     <line x1="20" y1="8" x2="20" y2="14"></line>
                                     <line x1="23" y1="11" x2="17" y2="11"></line>
                                 </svg>
-                                Create Borrower Account
+                                Register Borrower
                             </button>
                         </div>
-                    </template>
 
-                    <!-- Footer Note -->
-                    <div class="ps-auth-footer">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        256-Bit Financial Encryption &bull; Strict Role-Based Session
+                        <!-- ── 1. SIGN IN TAB ── -->
+                        <template if:true={isLoginMode}>
+                            <div class="ps-form-layout">
+                                <div class="ps-form-header">
+                                    <h3 class="ps-form-title">Welcome Back</h3>
+                                    <p class="ps-form-subtitle">Enter your registered email & password to access your dashboard.</p>
+                                </div>
+
+                                <div class="ps-input-field">
+                                    <label class="ps-field-label">Email Address</label>
+                                    <input
+                                        type="email"
+                                        class="ps-input"
+                                        placeholder="e.g. santoshpatelvns5@gmail.com or borrower@mail.com"
+                                        value={loginEmail}
+                                        oninput={handleLoginEmailChange}
+                                    />
+                                </div>
+
+                                <div class="ps-input-field">
+                                    <label class="ps-field-label">Password</label>
+                                    <input
+                                        type="password"
+                                        class="ps-input"
+                                        placeholder="Enter password"
+                                        value={loginPassword}
+                                        oninput={handleLoginPasswordChange}
+                                        onkeydown={handleLoginKeyDown}
+                                    />
+                                </div>
+
+                                <button class="ps-btn ps-btn-primary ps-btn-full" onclick={handleLoginSubmit}>
+                                    Sign In to Portal
+                                </button>
+
+                                <!-- 1-Click Demo Logins -->
+                                <div class="ps-quick-login-box">
+                                    <span class="ps-quick-title">⚡ 1-Click Role Logins:</span>
+                                    <div class="ps-quick-grid">
+                                        <button class="ps-quick-pill ps-pill-admin" onclick={handleQuickLoginAdmin}>
+                                            👑 Admin Console ({adminEmail})
+                                        </button>
+                                        <button class="ps-quick-pill ps-pill-borrower" onclick={handleQuickLoginBorrower}>
+                                            👤 Borrower (Priya Sharma)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- ── 2. REGISTER TAB ── -->
+                        <template if:false={isLoginMode}>
+                            <div class="ps-form-layout">
+                                <div class="ps-form-header">
+                                    <h3 class="ps-form-title">Create Borrower Account</h3>
+                                    <p class="ps-form-subtitle">Join Finspectra to apply for loans and manage amortized repayments.</p>
+                                </div>
+
+                                <div class="ps-input-field">
+                                    <label class="ps-field-label">Full Name *</label>
+                                    <input
+                                        type="text"
+                                        class="ps-input"
+                                        placeholder="e.g. Priya Sharma"
+                                        value={regName}
+                                        oninput={handleRegNameChange}
+                                    />
+                                </div>
+
+                                <div class="ps-input-field">
+                                    <label class="ps-field-label">Email Address *</label>
+                                    <input
+                                        type="email"
+                                        class="ps-input"
+                                        placeholder="e.g. priya.sharma@example.com"
+                                        value={regEmail}
+                                        oninput={handleRegEmailChange}
+                                    />
+                                </div>
+
+                                <div class="ps-input-field">
+                                    <label class="ps-field-label">Phone Number</label>
+                                    <input
+                                        type="tel"
+                                        class="ps-input"
+                                        placeholder="e.g. +91 9876543210"
+                                        value={regPhone}
+                                        oninput={handleRegPhoneChange}
+                                    />
+                                </div>
+
+                                <div class="ps-input-field">
+                                    <label class="ps-field-label">Password (min 6 chars) *</label>
+                                    <input
+                                        type="password"
+                                        class="ps-input"
+                                        placeholder="Create secure password"
+                                        value={regPassword}
+                                        oninput={handleRegPasswordChange}
+                                    />
+                                </div>
+
+                                <button class="ps-btn ps-btn-accent ps-btn-full" onclick={handleRegisterSubmit}>
+                                    Create Account & Enter Portal
+                                </button>
+                            </div>
+                        </template>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── Interactive Live Live EMI Simulator & Calculator Section ───── -->
+            <div class="ps-simulator-section">
+                <div class="ps-section-header">
+                    <span class="ps-section-tag">INTERACTIVE LOAN SIMULATOR</span>
+                    <h3 class="ps-section-title">Calculate Reducing-Balance Amortization Instantly</h3>
+                    <p class="ps-section-subtitle">Adjust the loan principal, annual interest rate, and repayment tenure to simulate your monthly cash flow.</p>
+                </div>
+
+                <div class="ps-simulator-grid">
+                    <!-- Controls Column -->
+                    <div class="ps-sim-controls">
+                        <!-- Principal Slider -->
+                        <div class="ps-sim-control-group">
+                            <div class="ps-sim-label-row">
+                                <span class="ps-sim-label">Loan Principal Amount</span>
+                                <span class="ps-sim-display-val ps-text-indigo">₹ {formattedSimPrincipal}</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="50000"
+                                max="5000000"
+                                step="25000"
+                                class="ps-slider"
+                                value={simPrincipal}
+                                oninput={handleSimPrincipalChange}
+                            />
+                            <div class="ps-slider-limits">
+                                <span>₹ 50,000</span>
+                                <span>₹ 50,00,000</span>
+                            </div>
+                        </div>
+
+                        <!-- Interest Rate Slider -->
+                        <div class="ps-sim-control-group">
+                            <div class="ps-sim-label-row">
+                                <span class="ps-sim-label">Annual Interest Rate (% p.a.)</span>
+                                <span class="ps-sim-display-val ps-text-amber">{simInterestRate}% p.a.</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0"
+                                max="24"
+                                step="0.25"
+                                class="ps-slider"
+                                value={simInterestRate}
+                                oninput={handleSimRateChange}
+                            />
+                            <div class="ps-slider-limits">
+                                <span>0% (Interest-Free)</span>
+                                <span>24% p.a.</span>
+                            </div>
+                        </div>
+
+                        <!-- Tenure Slider -->
+                        <div class="ps-sim-control-group">
+                            <div class="ps-sim-label-row">
+                                <span class="ps-sim-label">Repayment Tenure</span>
+                                <span class="ps-sim-display-val ps-text-green">{simTenure} Months</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="3"
+                                max="60"
+                                step="1"
+                                class="ps-slider"
+                                value={simTenure}
+                                oninput={handleSimTenureChange}
+                            />
+                            <div class="ps-slider-limits">
+                                <span>3 Months</span>
+                                <span>60 Months (5 Years)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Column -->
+                    <div class="ps-sim-results-card">
+                        <div class="ps-sim-hero-result">
+                            <span class="ps-sim-result-lbl">Estimated Monthly Installment (EMI)</span>
+                            <div class="ps-sim-result-val ps-text-green">₹ {simEMI}</div>
+                            <span class="ps-sim-result-sub">Computed via Reducing-Balance Amortization</span>
+                        </div>
+
+                        <div class="ps-sim-breakdown-row">
+                            <div class="ps-breakdown-col">
+                                <span class="ps-breakdown-lbl">Principal Sanctioned</span>
+                                <span class="ps-breakdown-val">₹ {formattedSimPrincipal}</span>
+                            </div>
+                            <div class="ps-breakdown-col">
+                                <span class="ps-breakdown-lbl">Total Interest</span>
+                                <span class="ps-breakdown-val ps-text-amber">₹ {simTotalInterest}</span>
+                            </div>
+                            <div class="ps-breakdown-col">
+                                <span class="ps-breakdown-lbl">Total Amount Payable</span>
+                                <span class="ps-breakdown-val ps-text-indigo">₹ {simTotalPayable}</span>
+                            </div>
+                        </div>
+
+                        <!-- Principal vs Interest Visual Ratio Bar -->
+                        <div class="ps-ratio-box">
+                            <div class="ps-ratio-labels">
+                                <span>Principal ({simPrincipalPct}%)</span>
+                                <span>Interest ({simInterestPct}%)</span>
+                            </div>
+                            <div class="ps-ratio-track">
+                                <div class="ps-ratio-principal" style={simPrincipalBarStyle}></div>
+                                <div class="ps-ratio-interest" style={simInterestBarStyle}></div>
+                            </div>
+                        </div>
+
+                        <button class="ps-btn ps-btn-primary ps-btn-full" onclick={handleApplyWithSimParams}>
+                            Apply with These Parameters &rarr;
+                        </button>
                     </div>
                 </div>
             </div>
+
+            <!-- ── Finspectra Platform Capabilities Bento Grid ────────────────── -->
+            <div class="ps-bento-section">
+                <div class="ps-section-header">
+                    <span class="ps-section-tag">ENTERPRISE CAPABILITIES</span>
+                    <h3 class="ps-section-title">Why Leading Lenders Choose Finspectra Prizm</h3>
+                </div>
+
+                <div class="ps-bento-grid">
+                    <!-- Feature 1 -->
+                    <div class="ps-bento-card">
+                        <div class="ps-bento-icon ps-bento-indigo">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                        </div>
+                        <h4 class="ps-bento-heading">Amortization Math Engine</h4>
+                        <p class="ps-bento-body">Exact reducing-balance installment calculations with zero-interest fallback and penny-perfect final installment balancing.</p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="ps-bento-card">
+                        <div class="ps-bento-icon ps-bento-green">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </div>
+                        <h4 class="ps-bento-heading">Automated Email Servicing</h4>
+                        <p class="ps-bento-body">Recursive daily reminders for upcoming and overdue EMIs, paired with instant transactional HTML payment receipt dispatches.</p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="ps-bento-card">
+                        <div class="ps-bento-icon ps-bento-amber">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <h4 class="ps-bento-heading">Strict Role Protection</h4>
+                        <p class="ps-bento-body">Dedicated Admin CRM Control Center for {adminEmail} and clean self-service dashboards for borrowers.</p>
+                    </div>
+
+                    <!-- Feature 4 -->
+                    <div class="ps-bento-card">
+                        <div class="ps-bento-icon ps-bento-red">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                                <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="ps-bento-heading">Portfolio Risk Analytics</h4>
+                        <p class="ps-bento-body">Real-time metrics on disbursed capital, recovered funds, outstanding receivables, delinquency counts, and recovery rates.</p>
+                    </div>
+                </div>
+            </div>
+
         </template>
 
 
         <!-- ═══════════════════════════════════════════════════════════════════
-             AUTHENTICATED SESSION TOP NAVBAR
-             Shown when user IS authenticated
+             STATE 2: AUTHENTICATED SESSION
+             Rendered when user IS authenticated (Admin vs Borrower)
         ════════════════════════════════════════════════════════════════════ -->
         <template if:true={isAuthenticated}>
+            
+            <!-- ── Top Authenticated Navigation ──────────────────────────────── -->
             <div class="ps-navbar">
                 <div class="ps-navbar-left">
                     <div class="ps-brand-logo">
                         <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
-                            <rect width="36" height="36" rx="10" fill="url(#navbarGrad)"/>
+                            <rect width="36" height="36" rx="10" fill="url(#navbarAuthGrad)"/>
                             <path d="M8 26L18 10L28 26" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M12 21H24" stroke="white" stroke-width="2" stroke-linecap="round"/>
                             <circle cx="18" cy="10" r="2" fill="white"/>
                             <defs>
-                                <linearGradient id="navbarGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                <linearGradient id="navbarAuthGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
                                     <stop offset="0%" stop-color="#6366f1"/>
                                     <stop offset="100%" stop-color="#a855f7"/>
                                 </linearGradient>
@@ -204,7 +456,7 @@
                     </div>
                 </div>
 
-                <!-- User Profile & Logout Controls -->
+                <!-- User Profile & Controls -->
                 <div class="ps-navbar-right">
                     <div class="ps-user-badge">
                         <div class="ps-user-avatar">{userInitials}</div>

@@ -23,23 +23,163 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   AUTHENTICATION PORTAL (LOGIN & REGISTRATION)
+   HOME LANDING PAGE (UNAUTHENTICATED) — FINSPECTRA PRIZM DESIGN SYSTEM
 ════════════════════════════════════════════════════════════════════════════ */
-.ps-auth-container {
+
+/* ── 1. Top Landing Navbar ─────────────────────────────────────────────────── */
+.ps-home-navbar {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #1f2937;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+/* ── 2. Hero Section Layout ────────────────────────────────────────────────── */
+.ps-hero-section {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 40px;
+    align-items: center;
+    margin-bottom: 60px;
+}
+
+@media (max-width: 900px) {
+    .ps-hero-section {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+}
+
+.ps-hero-left {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.ps-pill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #a5b4fc;
+    letter-spacing: 0.3px;
+    width: fit-content;
+}
+
+.ps-pill-pulse {
+    width: 8px;
+    height: 8px;
+    background-color: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #10b981;
+    animation: pulseGlow 1.8s infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(1.3); }
+}
+
+.ps-hero-headline {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.22;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.8px;
+}
+
+.ps-gradient-text {
+    background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.ps-hero-description {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #94a3b8;
+    margin: 0;
+    max-width: 580px;
+}
+
+/* ── Live Hero Metrics Strip ──────────────────────────────────────────────── */
+.ps-hero-metrics {
+    display: flex;
+    align-items: center;
+    background: rgba(17, 24, 39, 0.7);
+    border: 1px solid #1f2937;
+    border-radius: 14px;
+    padding: 14px 20px;
+    gap: 20px;
+    width: fit-content;
+    margin-top: 4px;
+}
+
+.ps-hero-metric-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.ps-hero-metric-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #34d399;
+    letter-spacing: -0.5px;
+}
+
+.ps-hero-metric-lbl {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.ps-hero-metric-divider {
+    width: 1px;
+    height: 32px;
+    background-color: #374151;
+}
+
+.ps-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ps-chip {
+    font-size: 12px;
+    font-weight: 600;
+    color: #cbd5e1;
+    background: #111827;
+    border: 1px solid #1f2937;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+/* ── Hero Right: Interactive Auth Card ────────────────────────────────────── */
+.ps-hero-right {
+    display: flex;
     justify-content: center;
-    padding: 30px 10px;
 }
 
 .ps-auth-card {
-    background: linear-gradient(135deg, #111827 0%, #161f30 100%);
+    background: linear-gradient(145deg, #111827 0%, #172033 100%);
     border: 1px solid #374151;
     border-radius: 20px;
-    padding: 36px 32px;
+    padding: 30px 28px;
     width: 100%;
-    max-width: 480px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+    max-width: 440px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 30px rgba(99, 102, 241, 0.1);
     animation: authFadeIn 0.3s ease-out;
 }
 
@@ -48,129 +188,416 @@
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.ps-auth-header {
-    text-align: center;
-    margin-bottom: 24px;
-}
-
-.ps-auth-header .ps-brand-logo {
-    display: inline-flex;
-    margin-bottom: 12px;
-}
-
-.ps-auth-title {
-    font-size: 20px;
-    font-weight: 800;
-    color: #ffffff;
-    margin: 6px 0 2px 0;
-    letter-spacing: -0.5px;
-}
-
-.ps-auth-subtitle {
-    font-size: 12px;
-    color: #94a3b8;
-    margin: 0;
-}
-
-.ps-auth-tabs {
+/* ── Toggle Switcher (Sign In ⟷ Register) ─────────────────────────────────── */
+.ps-toggle-container {
     display: flex;
     background-color: #0b0f19;
     border: 1px solid #1f2937;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 4px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     gap: 4px;
 }
 
-.ps-auth-tab {
+.ps-toggle-btn {
     flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     background: transparent;
     border: none;
     color: #94a3b8;
     font-size: 13px;
     font-weight: 600;
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: 10px 14px;
+    border-radius: 9px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
 }
 
-.ps-auth-tab:hover {
+.ps-toggle-btn:hover {
     color: #ffffff;
 }
 
-.ps-auth-tab-active {
+.ps-toggle-active {
     background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
     color: #ffffff !important;
     font-weight: 700;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.45);
 }
 
-.ps-auth-form {
+.ps-form-layout {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
 }
 
-.ps-demo-box {
-    margin-top: 10px;
+.ps-form-header {
+    margin-bottom: 4px;
+}
+
+.ps-form-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.3px;
+}
+
+.ps-form-subtitle {
+    font-size: 12px;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.ps-input-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ps-field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.ps-quick-login-box {
+    margin-top: 6px;
     background: rgba(99, 102, 241, 0.08);
-    border: 1px dashed rgba(99, 102, 241, 0.3);
-    border-radius: 12px;
-    padding: 12px 14px;
+    border: 1px dashed rgba(99, 102, 241, 0.35);
+    border-radius: 10px;
+    padding: 10px 12px;
 }
 
-.ps-demo-title {
+.ps-quick-title {
     font-size: 11px;
     font-weight: 700;
     color: #818cf8;
     margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    display: block;
+    letter-spacing: 0.3px;
 }
 
-.ps-demo-btns {
+.ps-quick-grid {
     display: flex;
-    gap: 8px;
+    flex-direction: column;
+    gap: 6px;
 }
 
-.ps-demo-btn {
-    flex: 1;
+.ps-quick-pill {
     font-size: 11px;
     font-weight: 700;
-    padding: 6px 10px;
+    padding: 7px 10px;
     border-radius: 6px;
     cursor: pointer;
     border: none;
+    text-align: left;
     transition: transform 0.15s ease;
 }
 
-.ps-demo-btn:hover {
+.ps-quick-pill:hover {
     transform: translateY(-1px);
 }
 
-.ps-demo-admin {
+.ps-pill-admin {
     background-color: #1e1b4b;
     color: #a5b4fc;
     border: 1px solid #4338ca;
 }
 
-.ps-demo-user {
+.ps-pill-borrower {
     background-color: #064e3b;
     color: #6ee7b7;
     border: 1px solid #047857;
 }
 
-.ps-auth-footer {
+/* ── 3. Interactive Live EMI Simulator Section ────────────────────────────── */
+.ps-simulator-section {
+    background: linear-gradient(135deg, #101625 0%, #151d2f 100%);
+    border: 1px solid #1f2937;
+    border-radius: 20px;
+    padding: 36px 32px;
+    margin-bottom: 60px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.ps-section-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.ps-section-tag {
+    font-size: 11px;
+    font-weight: 800;
+    color: #818cf8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.ps-section-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.ps-section-subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    margin: 0 auto;
+    max-width: 600px;
+    line-height: 1.5;
+}
+
+.ps-simulator-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 36px;
+    align-items: center;
+}
+
+@media (max-width: 850px) {
+    .ps-simulator-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ps-sim-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.ps-sim-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ps-sim-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ps-sim-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.ps-sim-display-val {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.ps-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #1f2937;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.ps-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.7);
+    border: 2px solid #ffffff;
+    transition: transform 0.15s ease;
+}
+
+.ps-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+.ps-slider-limits {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* ── Simulator Results Card ───────────────────────────────────────────────── */
+.ps-sim-results-card {
+    background: #0b0f19;
+    border: 1px solid #1f2937;
+    border-radius: 16px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ps-sim-hero-result {
+    text-align: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #1f2937;
+}
+
+.ps-sim-result-lbl {
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.ps-sim-result-val {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+
+.ps-sim-result-sub {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.ps-sim-breakdown-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    text-align: center;
+}
+
+.ps-breakdown-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ps-breakdown-lbl {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.ps-breakdown-val {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.ps-ratio-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ps-ratio-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+}
+
+.ps-ratio-track {
+    width: 100%;
+    height: 10px;
+    background-color: #1f2937;
+    border-radius: 9999px;
+    overflow: hidden;
+    display: flex;
+}
+
+.ps-ratio-principal {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #818cf8);
+    transition: width 0.3s ease;
+}
+
+.ps-ratio-interest {
+    height: 100%;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    transition: width 0.3s ease;
+}
+
+/* ── 4. Bento Capabilities Grid ───────────────────────────────────────────── */
+.ps-bento-section {
+    margin-bottom: 20px;
+}
+
+.ps-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+@media (max-width: 1024px) {
+    .ps-bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .ps-bento-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ps-bento-card {
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 14px;
+    padding: 22px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.ps-bento-card:hover {
+    transform: translateY(-3px);
+    border-color: #374151;
+}
+
+.ps-bento-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid #1f2937;
-    font-size: 11px;
-    color: #64748b;
+}
+
+.ps-bento-indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+.ps-bento-green  { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.ps-bento-amber  { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.ps-bento-red    { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+.ps-bento-heading {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+.ps-bento-body {
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
