@@ -1,346 +1,919 @@
 <template>
     <!-- ═══════════════════════════════════════════════════════════════════════
-         Prizm Loan Servicing Dashboard — Modern Enterprise UI
-         Author: Santosh Patel | 2026
+         Finspectra Prizm — Role-Protected Loan Servicing & Repayment Platform
+         Role 1: Admin (santoshpatelvns5@gmail.com) ➔ Admin CRM Master Center ONLY
+         Role 2: Borrower (Registered User) ➔ Borrower Self-Service Portal ONLY
+         Author: Santosh Patel (santoshpatelvns5@gmail.com) | 2026
     ════════════════════════════════════════════════════════════════════════ -->
-    <div class={dashboardClass}>
+    <div class="ps-dashboard">
 
-        <!-- ── Loading Spinner ──────────────────────────────────────────────── -->
+        <!-- ── Global Loading Overlay ───────────────────────────────────────── -->
         <template if:true={isLoading}>
             <div class="ps-loading-overlay">
                 <div class="ps-spinner-container">
                     <div class="ps-spinner"></div>
-                    <p class="ps-spinner-text">Loading EMI Schedule...</p>
+                    <p class="ps-spinner-text">Securing Encrypted Session & Ledger...</p>
                 </div>
             </div>
         </template>
 
-        <!-- ── Dashboard Header ─────────────────────────────────────────────── -->
-        <div class="ps-header">
-            <div class="ps-header-left">
-                <div class="ps-logo-mark">
-                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-                        <rect width="36" height="36" rx="10" fill="url(#logoGrad)"/>
-                        <path d="M8 26L18 10L28 26" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12 21H24" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="18" cy="10" r="2" fill="white"/>
-                        <defs>
-                            <linearGradient id="logoGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-                                <stop offset="0%" stop-color="#6366f1"/>
-                                <stop offset="100%" stop-color="#8b5cf6"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
-                <div class="ps-header-title-group">
-                    <h1 class="ps-header-title">EMI Repayment Tracker</h1>
-                    <p class="ps-header-subtitle">
-                        <template if:true={loanDetails}>
-                            {loanDetails.Name} &bull; {loanDetails.Borrower_Name__c} &bull; {loanDetails.Loan_Type__c}
-                        </template>
-                        <template if:false={loanDetails}>
-                            Prizm Loan Servicing Platform
-                        </template>
-                    </p>
-                </div>
-            </div>
-            <div class="ps-header-right">
-                <div class={statusBadgeClass}>
-                    <span class="ps-status-dot"></span>
-                    <span>{loanStatusLabel}</span>
-                </div>
-                <button class="ps-btn ps-btn-ghost" onclick={handleRefresh} title="Refresh Dashboard">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="23 4 23 10 17 10"></polyline>
-                        <polyline points="1 20 1 14 7 14"></polyline>
-                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                    </svg>
-                    Refresh
-                </button>
-            </div>
-        </div>
+        <!-- ═══════════════════════════════════════════════════════════════════
+             VIEW 1: AUTHENTICATION PORTAL (LOGIN & REGISTRATION)
+             Rendered when user is NOT authenticated
+        ════════════════════════════════════════════════════════════════════ -->
+        <template if:false={isAuthenticated}>
+            <div class="ps-auth-container">
+                <div class="ps-auth-card">
+                    
+                    <!-- Branding Header -->
+                    <div class="ps-auth-header">
+                        <div class="ps-brand-logo">
+                            <svg width="42" height="42" viewBox="0 0 36 36" fill="none">
+                                <rect width="36" height="36" rx="10" fill="url(#authLogoGrad)"/>
+                                <path d="M8 26L18 10L28 26" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 21H24" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="18" cy="10" r="2" fill="white"/>
+                                <defs>
+                                    <linearGradient id="authLogoGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#6366f1"/>
+                                        <stop offset="100%" stop-color="#a855f7"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span class="ps-brand-tag">FINSPECTRA PRIZM</span>
+                        <h2 class="ps-auth-title">Loan Servicing & Repayment Platform</h2>
+                        <p class="ps-auth-subtitle">Enterprise Role-Based FinTech Access Control</p>
+                    </div>
 
-        <!-- ── KPI Cards Row ─────────────────────────────────────────────────── -->
-        <template if:true={summaryStats}>
-            <div class="ps-kpi-grid">
+                    <!-- Auth Mode Tabs (Sign In / Register) -->
+                    <div class="ps-auth-tabs">
+                        <button class={loginTabClass} onclick={handleSwitchToLogin}>Sign In</button>
+                        <button class={registerTabClass} onclick={handleSwitchToRegister}>Register Borrower</button>
+                    </div>
 
-                <!-- Total EMI -->
-                <div class="ps-kpi-card ps-kpi-total">
-                    <div class="ps-kpi-icon ps-icon-blue">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                            <line x1="8" y1="21" x2="16" y2="21"></line>
-                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                    <!-- ── LOGIN FORM ── -->
+                    <template if:true={isLoginMode}>
+                        <div class="ps-auth-form">
+                            <div class="ps-form-group">
+                                <label class="ps-label">Email Address</label>
+                                <input
+                                    type="email"
+                                    class="ps-input"
+                                    placeholder="e.g. santoshpatelvns5@gmail.com or borrower@mail.com"
+                                    value={loginEmail}
+                                    oninput={handleLoginEmailChange}
+                                />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Password</label>
+                                <input
+                                    type="password"
+                                    class="ps-input"
+                                    placeholder="Enter your account password"
+                                    value={loginPassword}
+                                    oninput={handleLoginPasswordChange}
+                                    onkeydown={handleLoginKeyDown}
+                                />
+                            </div>
+
+                            <button class="ps-btn ps-btn-primary ps-btn-full" onclick={handleLoginSubmit}>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                    <polyline points="10 17 15 12 10 7"></polyline>
+                                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                                </svg>
+                                Secure Sign In
+                            </button>
+
+                            <!-- Demo Quick Login Shortcuts -->
+                            <div class="ps-demo-box">
+                                <div class="ps-demo-title">⚡ Quick 1-Click Role Login:</div>
+                                <div class="ps-demo-btns">
+                                    <button class="ps-demo-btn ps-demo-admin" onclick={handleQuickLoginAdmin}>
+                                        👑 Admin ({adminEmail})
+                                    </button>
+                                    <button class="ps-demo-btn ps-demo-user" onclick={handleQuickLoginBorrower}>
+                                        👤 Borrower (Priya Sharma)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- ── REGISTRATION FORM ── -->
+                    <template if:false={isLoginMode}>
+                        <div class="ps-auth-form">
+                            <div class="ps-form-group">
+                                <label class="ps-label">Full Name *</label>
+                                <input
+                                    type="text"
+                                    class="ps-input"
+                                    placeholder="e.g. Priya Sharma"
+                                    value={regName}
+                                    oninput={handleRegNameChange}
+                                />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Email Address *</label>
+                                <input
+                                    type="email"
+                                    class="ps-input"
+                                    placeholder="e.g. priya.sharma@example.com"
+                                    value={regEmail}
+                                    oninput={handleRegEmailChange}
+                                />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Phone Number</label>
+                                <input
+                                    type="tel"
+                                    class="ps-input"
+                                    placeholder="e.g. +91 9876543210"
+                                    value={regPhone}
+                                    oninput={handleRegPhoneChange}
+                                />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Password (min 6 chars) *</label>
+                                <input
+                                    type="password"
+                                    class="ps-input"
+                                    placeholder="Create a strong password"
+                                    value={regPassword}
+                                    oninput={handleRegPasswordChange}
+                                />
+                            </div>
+
+                            <button class="ps-btn ps-btn-accent ps-btn-full" onclick={handleRegisterSubmit}>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="8.5" cy="7" r="4"></circle>
+                                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                                </svg>
+                                Create Borrower Account
+                            </button>
+                        </div>
+                    </template>
+
+                    <!-- Footer Note -->
+                    <div class="ps-auth-footer">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                         </svg>
+                        256-Bit Financial Encryption &bull; Strict Role-Based Session
                     </div>
-                    <div class="ps-kpi-content">
-                        <span class="ps-kpi-label">Total Installments</span>
-                        <span class="ps-kpi-value">{summaryStats.totalCount}</span>
-                        <span class="ps-kpi-sub">EMI schedule generated</span>
-                    </div>
-                    <div class="ps-kpi-glow ps-glow-blue"></div>
-                </div>
-
-                <!-- Paid -->
-                <div class="ps-kpi-card ps-kpi-paid">
-                    <div class="ps-kpi-icon ps-icon-green">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                    </div>
-                    <div class="ps-kpi-content">
-                        <span class="ps-kpi-label">Paid EMIs</span>
-                        <span class="ps-kpi-value ps-text-green">{summaryStats.paidCount}</span>
-                        <span class="ps-kpi-sub">₹ {formattedTotalPaid} received</span>
-                    </div>
-                    <div class="ps-kpi-glow ps-glow-green"></div>
-                </div>
-
-                <!-- Pending -->
-                <div class="ps-kpi-card ps-kpi-pending">
-                    <div class="ps-kpi-icon ps-icon-amber">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                    </div>
-                    <div class="ps-kpi-content">
-                        <span class="ps-kpi-label">Pending EMIs</span>
-                        <span class="ps-kpi-value ps-text-amber">{summaryStats.pendingCount}</span>
-                        <span class="ps-kpi-sub">₹ {formattedTotalPending} due</span>
-                    </div>
-                    <div class="ps-kpi-glow ps-glow-amber"></div>
-                </div>
-
-                <!-- Overdue -->
-                <div class="ps-kpi-card ps-kpi-overdue">
-                    <div class="ps-kpi-icon ps-icon-red">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                            <line x1="12" y1="9" x2="12" y2="13"></line>
-                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                        </svg>
-                    </div>
-                    <div class="ps-kpi-content">
-                        <span class="ps-kpi-label">Overdue EMIs</span>
-                        <span class="ps-kpi-value ps-text-red">{summaryStats.overdueCount}</span>
-                        <span class="ps-kpi-sub">Immediate attention needed</span>
-                    </div>
-                    <div class="ps-kpi-glow ps-glow-red"></div>
-                </div>
-
-            </div>
-        </template>
-
-        <!-- ── Progress Section ─────────────────────────────────────────────── -->
-        <template if:true={summaryStats}>
-            <div class="ps-progress-section">
-                <div class="ps-progress-header">
-                    <div class="ps-progress-info">
-                        <span class="ps-progress-label">Loan Repayment Progress</span>
-                        <span class="ps-progress-detail">{summaryStats.paidCount} of {summaryStats.totalCount} EMIs Paid</span>
-                    </div>
-                    <div class="ps-progress-pct">{summaryStats.progressPct}%</div>
-                </div>
-                <div class="ps-progress-track">
-                    <div class="ps-progress-fill" style={progressBarStyle}></div>
-                </div>
-                <div class="ps-progress-milestones">
-                    <span>0%</span>
-                    <span>25%</span>
-                    <span>50%</span>
-                    <span>75%</span>
-                    <span>100%</span>
-                </div>
-            </div>
-        </template>
-
-        <!-- ── Loan Details Summary Bar ──────────────────────────────────────── -->
-        <template if:true={loanDetails}>
-            <div class="ps-loan-summary-bar">
-                <div class="ps-loan-stat">
-                    <span class="ps-loan-stat-label">Principal</span>
-                    <span class="ps-loan-stat-value">₹ {formattedPrincipal}</span>
-                </div>
-                <div class="ps-loan-divider"></div>
-                <div class="ps-loan-stat">
-                    <span class="ps-loan-stat-label">Interest Rate</span>
-                    <span class="ps-loan-stat-value">{loanDetails.Interest_Rate__c}% p.a.</span>
-                </div>
-                <div class="ps-loan-divider"></div>
-                <div class="ps-loan-stat">
-                    <span class="ps-loan-stat-label">Tenure</span>
-                    <span class="ps-loan-stat-value">{loanDetails.Tenure_Months__c} Months</span>
-                </div>
-                <div class="ps-loan-divider"></div>
-                <div class="ps-loan-stat">
-                    <span class="ps-loan-stat-label">Monthly EMI</span>
-                    <span class="ps-loan-stat-value ps-highlight">₹ {formattedEMI}</span>
-                </div>
-                <div class="ps-loan-divider"></div>
-                <div class="ps-loan-stat">
-                    <span class="ps-loan-stat-label">Total Payable</span>
-                    <span class="ps-loan-stat-value">₹ {formattedTotalPayable}</span>
                 </div>
             </div>
         </template>
 
-        <!-- ── Table Toolbar ─────────────────────────────────────────────────── -->
-        <div class="ps-table-toolbar">
-            <div class="ps-toolbar-left">
-                <h2 class="ps-table-heading">EMI Schedule</h2>
-                <span class="ps-record-count">{scheduleCount} records</span>
-            </div>
-            <div class="ps-toolbar-right">
-                <!-- Search -->
-                <div class="ps-search-box">
-                    <svg class="ps-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <input
-                        type="text"
-                        class="ps-search-input"
-                        placeholder="Search by name or status..."
-                        value={searchTerm}
-                        oninput={handleSearch}
-                        id="emi-search-input"
-                    />
-                </div>
 
-                <!-- Filter Tabs -->
-                <div class="ps-filter-tabs">
-                    <button class={filterAllClass} onclick={handleFilterAll} data-filter="All">All</button>
-                    <button class={filterPendingClass} onclick={handleFilterPending} data-filter="Pending">Pending</button>
-                    <button class={filterPaidClass} onclick={handleFilterPaid} data-filter="Paid">Paid</button>
-                    <button class={filterOverdueClass} onclick={handleFilterOverdue} data-filter="Overdue">Overdue</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ── EMI Schedule Table ─────────────────────────────────────────────── -->
-        <div class="ps-table-wrapper">
-            <template if:true={hasSchedules}>
-                <table class="ps-table" id="emi-datatable">
-                    <thead>
-                        <tr>
-                            <th class="ps-th ps-th-num">#</th>
-                            <th class="ps-th">EMI Reference</th>
-                            <th class="ps-th ps-th-right">EMI Amount</th>
-                            <th class="ps-th ps-th-right">Principal</th>
-                            <th class="ps-th ps-th-right">Interest</th>
-                            <th class="ps-th ps-th-right">Outstanding</th>
-                            <th class="ps-th">Due Date</th>
-                            <th class="ps-th ps-th-center">Status</th>
-                            <th class="ps-th ps-th-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template for:each={filteredSchedules} for:item="schedule">
-                            <tr key={schedule.Id} class={schedule.rowClass}>
-                                <td class="ps-td ps-td-num ps-td-muted">{schedule.rowIndex}</td>
-                                <td class="ps-td">
-                                    <div class="ps-emi-name-cell">
-                                        <div class="ps-emi-dot" data-status={schedule.Status__c}></div>
-                                        <span class="ps-emi-name">{schedule.Name}</span>
-                                    </div>
-                                </td>
-                                <td class="ps-td ps-td-right ps-td-bold">₹ {schedule.formattedEmi}</td>
-                                <td class="ps-td ps-td-right ps-td-muted">{schedule.formattedPrincipal}</td>
-                                <td class="ps-td ps-td-right ps-td-muted">{schedule.formattedInterest}</td>
-                                <td class="ps-td ps-td-right ps-td-muted">{schedule.formattedBalance}</td>
-                                <td class="ps-td">
-                                    <div class="ps-date-cell">
-                                        <span class="ps-date-day">{schedule.dueDateDay}</span>
-                                        <span class="ps-date-month-year">{schedule.dueDateMonthYear}</span>
-                                    </div>
-                                </td>
-                                <td class="ps-td ps-td-center">
-                                    <span class={schedule.statusBadgeClass}>{schedule.Status__c}</span>
-                                </td>
-                                <td class="ps-td ps-td-center">
-                                    <template if:false={schedule.isPaid}>
-                                        <button
-                                            class="ps-btn-pay"
-                                            onclick={handleMarkPaid}
-                                            data-id={schedule.Id}
-                                            data-name={schedule.Name}
-                                            id={schedule.actionButtonId}
-                                            disabled={schedule.isProcessing}>
-                                            <template if:false={schedule.isProcessing}>
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                                </svg>
-                                                Mark Paid
-                                            </template>
-                                            <template if:true={schedule.isProcessing}>
-                                                <span class="ps-btn-spinner"></span>
-                                                Processing...
-                                            </template>
-                                        </button>
-                                    </template>
-                                    <template if:true={schedule.isPaid}>
-                                        <span class="ps-paid-check">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                                <polyline points="20 6 9 17 4 12"></polyline>
-                                            </svg>
-                                            Paid
-                                        </span>
-                                    </template>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-
-                <!-- ── Amortization Summary Footer ───────────────────────────── -->
-                <div class="ps-table-footer">
-                    <div class="ps-footer-stat">
-                        <span class="ps-footer-label">Total EMI Paid</span>
-                        <span class="ps-footer-value ps-text-green">₹ {formattedTotalPaid}</span>
-                    </div>
-                    <div class="ps-footer-stat">
-                        <span class="ps-footer-label">Total Remaining</span>
-                        <span class="ps-footer-value ps-text-amber">₹ {formattedTotalPending}</span>
-                    </div>
-                    <div class="ps-footer-stat">
-                        <span class="ps-footer-label">Showing Records</span>
-                        <span class="ps-footer-value">{filteredCount} / {scheduleCount}</span>
-                    </div>
-                </div>
-
-            </template>
-
-            <!-- ── Empty State ──────────────────────────────────────────────── -->
-            <template if:false={hasSchedules}>
-                <div class="ps-empty-state">
-                    <div class="ps-empty-icon">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
+        <!-- ═══════════════════════════════════════════════════════════════════
+             AUTHENTICATED SESSION TOP NAVBAR
+             Shown when user IS authenticated
+        ════════════════════════════════════════════════════════════════════ -->
+        <template if:true={isAuthenticated}>
+            <div class="ps-navbar">
+                <div class="ps-navbar-left">
+                    <div class="ps-brand-logo">
+                        <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+                            <rect width="36" height="36" rx="10" fill="url(#navbarGrad)"/>
+                            <path d="M8 26L18 10L28 26" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 21H24" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="18" cy="10" r="2" fill="white"/>
+                            <defs>
+                                <linearGradient id="navbarGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#6366f1"/>
+                                    <stop offset="100%" stop-color="#a855f7"/>
+                                </linearGradient>
+                            </defs>
                         </svg>
                     </div>
-                    <h3 class="ps-empty-title">No EMI Schedules Found</h3>
-                    <p class="ps-empty-desc">
-                        <template if:true={hasError}>
-                            {errorMessage}
-                        </template>
-                        <template if:false={hasError}>
-                            Approve the loan to automatically generate the repayment schedule.
-                        </template>
-                    </p>
-                    <template if:true={hasError}>
-                        <button class="ps-btn ps-btn-primary" onclick={handleRefresh}>Try Again</button>
+                    <div class="ps-brand-text">
+                        <span class="ps-brand-tag">FINSPECTRA PRIZM</span>
+                        <h1 class="ps-brand-title">
+                            <template if:true={isAdminSession}>
+                                Admin CRM Master Center
+                            </template>
+                            <template if:false={isAdminSession}>
+                                Borrower Self-Service Portal
+                            </template>
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- User Profile & Logout Controls -->
+                <div class="ps-navbar-right">
+                    <div class="ps-user-badge">
+                        <div class="ps-user-avatar">{userInitials}</div>
+                        <div class="ps-user-info">
+                            <div class="ps-user-name">{currentUserName}</div>
+                            <div class="ps-user-role-tag">
+                                <template if:true={isAdminSession}>
+                                    <span class="ps-role-admin">👑 Administrator</span>
+                                </template>
+                                <template if:false={isAdminSession}>
+                                    <span class="ps-role-borrower">👤 Borrower</span>
+                                </template>
+                                &bull; {currentUserEmail}
+                            </div>
+                        </div>
+                    </div>
+
+                    <template if:false={isAdminSession}>
+                        <button class="ps-btn ps-btn-primary ps-btn-sm" onclick={handleOpenApplyModal}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Apply for Loan
+                        </button>
+                    </template>
+
+                    <button class="ps-btn ps-btn-ghost ps-btn-sm" onclick={handleRefreshAll} title="Refresh Ledger">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                    </button>
+
+                    <button class="ps-btn ps-btn-danger ps-btn-sm" onclick={handleLogout} title="Sign Out">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 ROLE 1: ADMIN CRM DASHBOARD (santoshpatelvns5@gmail.com ONLY)
+                 Borrower portal is strictly hidden for Admin
+            ════════════════════════════════════════════════════════════════ -->
+            <template if:true={isAdminSession}>
+                
+                <!-- Admin Header Banner -->
+                <div class="ps-admin-header">
+                    <div>
+                        <div class="ps-admin-tag">MASTER PORTFOLIO CONTROLLER</div>
+                        <h2 class="ps-admin-title">Credit Portfolio & Servicing Master Center</h2>
+                        <p class="ps-admin-sub">Logged in as Administrator: <strong>{currentUserEmail}</strong> &bull; Total portfolio oversight & automated email triggers.</p>
+                    </div>
+                    <div class="ps-admin-header-actions">
+                        <button class="ps-btn ps-btn-accent" onclick={handleRunBatchReminders}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            Trigger Batch Email Reminders
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Portfolio Metrics Grid -->
+                <template if:true={adminMetrics}>
+                    <div class="ps-kpi-grid">
+                        <div class="ps-kpi-card">
+                            <div class="ps-kpi-icon ps-icon-indigo">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                            </div>
+                            <div class="ps-kpi-content">
+                                <span class="ps-kpi-label">Disbursed Capital</span>
+                                <span class="ps-kpi-value ps-text-indigo">₹ {formattedAdminDisbursed}</span>
+                                <span class="ps-kpi-sub">{adminMetrics.totalLoans} total loans booked</span>
+                            </div>
+                        </div>
+
+                        <div class="ps-kpi-card">
+                            <div class="ps-kpi-icon ps-icon-green">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                            </div>
+                            <div class="ps-kpi-content">
+                                <span class="ps-kpi-label">Total Capital Collected</span>
+                                <span class="ps-kpi-value ps-text-green">₹ {formattedAdminCollected}</span>
+                                <span class="ps-kpi-sub">Recovery Rate: {adminMetrics.collectionRate}%</span>
+                            </div>
+                        </div>
+
+                        <div class="ps-kpi-card">
+                            <div class="ps-kpi-icon ps-icon-amber">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <div class="ps-kpi-content">
+                                <span class="ps-kpi-label">Outstanding Receivables</span>
+                                <span class="ps-kpi-value ps-text-amber">₹ {formattedAdminReceivable}</span>
+                                <span class="ps-kpi-sub">{adminMetrics.activeLoans} active servicing loans</span>
+                            </div>
+                        </div>
+
+                        <div class="ps-kpi-card">
+                            <div class="ps-kpi-icon ps-icon-red">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                            </div>
+                            <div class="ps-kpi-content">
+                                <span class="ps-kpi-label">Overdue Risk Accounts</span>
+                                <span class="ps-kpi-value ps-text-red">{adminMetrics.overdueSchedules}</span>
+                                <span class="ps-kpi-sub">{adminMetrics.pendingLoans} pending approvals</span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Admin Master Table Toolbar -->
+                <div class="ps-table-toolbar">
+                    <div class="ps-toolbar-left">
+                        <h2 class="ps-table-heading">Master Borrower Loan Accounts</h2>
+                        <span class="ps-badge-counter">{allLoansCount} accounts</span>
+                    </div>
+                    <div class="ps-toolbar-right">
+                        <div class="ps-search-box">
+                            <svg class="ps-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input
+                                type="text"
+                                class="ps-search-input"
+                                placeholder="Search borrower name, email or loan ID..."
+                                value={adminSearchTerm}
+                                oninput={handleAdminSearch}
+                            />
+                        </div>
+                        <div class="ps-filter-tabs">
+                            <button class={adminFilterAllClass} onclick={handleAdminFilterAll}>All</button>
+                            <button class={adminFilterPendingClass} onclick={handleAdminFilterPending}>Pending</button>
+                            <button class={adminFilterApprovedClass} onclick={handleAdminFilterApproved}>Approved</button>
+                            <button class={adminFilterClosedClass} onclick={handleAdminFilterClosed}>Closed</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Master Loan Accounts Table -->
+                <div class="ps-table-wrapper">
+                    <template if:true={hasAdminLoans}>
+                        <table class="ps-table">
+                            <thead>
+                                <tr>
+                                    <th class="ps-th">Loan ID</th>
+                                    <th class="ps-th">Borrower</th>
+                                    <th class="ps-th">Email & Contact</th>
+                                    <th class="ps-th ps-th-right">Principal</th>
+                                    <th class="ps-th ps-th-center">Rate / Tenure</th>
+                                    <th class="ps-th">Type</th>
+                                    <th class="ps-th ps-th-center">Status</th>
+                                    <th class="ps-th ps-th-center">Admin Controls</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={enrichedAdminLoans} for:item="l">
+                                    <tr key={l.Id} class="ps-row">
+                                        <td class="ps-td ps-td-bold">
+                                            <a href="javascript:void(0);" onclick={handleViewScheduleDrilldown} data-id={l.Id} class="ps-link">
+                                                {l.Name}
+                                            </a>
+                                        </td>
+                                        <td class="ps-td">{l.Borrower_Name__c}</td>
+                                        <td class="ps-td ps-td-muted">{l.Borrower_Email__c}</td>
+                                        <td class="ps-td ps-td-right ps-td-bold">₹ {l.formattedPrincipal}</td>
+                                        <td class="ps-td ps-td-center ps-td-muted">{l.Interest_Rate__c}% &bull; {l.Tenure_Months__c}m</td>
+                                        <td class="ps-td">{l.Loan_Type__c}</td>
+                                        <td class="ps-td ps-td-center">
+                                            <span class={l.statusBadgeClass}>{l.Status__c}</span>
+                                        </td>
+                                        <td class="ps-td ps-td-center">
+                                            <div class="ps-action-group">
+                                                <template if:true={l.isPending}>
+                                                    <button class="ps-btn-mini ps-btn-mini-green" onclick={handleQuickApprove} data-id={l.Id} title="Approve & Generate Schedules">
+                                                        Approve
+                                                    </button>
+                                                    <button class="ps-btn-mini ps-btn-mini-red" onclick={handleQuickReject} data-id={l.Id} title="Reject Application">
+                                                        Reject
+                                                    </button>
+                                                </template>
+                                                <button class="ps-btn-mini ps-btn-mini-indigo" onclick={handleAdminOpenEdit} data-id={l.Id} title="Edit Profile & Terms">
+                                                    Edit
+                                                </button>
+                                                <button class="ps-btn-mini ps-btn-mini-ghost" onclick={handleViewScheduleDrilldown} data-id={l.Id} title="Inspect Amortization Schedule">
+                                                    Schedule
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </template>
+
+                    <template if:false={hasAdminLoans}>
+                        <div class="ps-empty-card">
+                            <p class="ps-empty-text">No loan records match your search filter.</p>
+                        </div>
                     </template>
                 </div>
             </template>
-        </div>
 
-        <!-- ── Toast Notification ───────────────────────────────────────────── -->
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 ROLE 2: BORROWER SELF-SERVICE PORTAL (REGULAR USERS ONLY)
+                 Admin CRM is strictly hidden for regular borrowers
+            ════════════════════════════════════════════════════════════════ -->
+            <template if:false={isAdminSession}>
+                
+                <!-- Borrower Account Strip -->
+                <div class="ps-borrower-strip">
+                    <div class="ps-borrower-info">
+                        <div class="ps-avatar">{borrowerInitials}</div>
+                        <div>
+                            <div class="ps-borrower-name">{currentBorrowerName}</div>
+                            <div class="ps-borrower-email">{currentUserEmail} &bull; {currentLoanType}</div>
+                        </div>
+                    </div>
+
+                    <!-- Multi-Loan Switcher for this Borrower -->
+                    <div class="ps-borrower-actions">
+                        <template if:true={hasMultipleLoans}>
+                            <div class="ps-loan-picker">
+                                <label class="ps-picker-label">Active Loan:</label>
+                                <select class="ps-picker-select" onchange={handleLoanSelect}>
+                                    <template for:each={borrowerLoans} for:item="l">
+                                        <option key={l.Id} value={l.Id}>{l.Name} (₹ {l.Principal_Amount__c} - {l.Status__c})</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </template>
+
+                        <div class={statusBadgeClass}>
+                            <span class="ps-status-dot"></span>
+                            <span>{loanStatusLabel}</span>
+                        </div>
+
+                        <button class="ps-btn ps-btn-secondary ps-btn-sm" onclick={handleOpenEditModal}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Edit Profile
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Borrower KPI Cards Row -->
+                <template if:true={summaryStats}>
+                    <div class="ps-kpi-grid">
+                        <div class="ps-kpi-card">
+                            <div class="ps-kpi-icon ps-icon-indigo">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+                                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                                </svg>
+                            </div>
+                            <div class="ps-kpi-content">
+                                <span class="ps-kpi-label">Total Installments</span>
+                                <span class="ps-kpi-value">{summaryStats.totalCount}</span>
+                                <span class="ps-kpi-sub">Monthly EMI Schedule</span>
+                            </div>
+                        </div>
+
+                        <div class="ps-kpi-card">
+                            <div class="ps-kpi-icon ps-icon-green">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                            </div>
+                            <div class="ps-kpi-content">
+                                <span class="ps-kpi-label">Amount Paid</span>
+                                <span class="ps-kpi-value ps-text-green">₹ {formattedTotalPaid}</span>
+                                <span class="ps-kpi-sub">{summaryStats.paidCount} EMIs settled</span>
+                            </div>
+                        </div>
+
+                        <div class="ps-kpi-card">
+                            <div class="ps-kpi-icon ps-icon-amber">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <div class="ps-kpi-content">
+                                <span class="ps-kpi-label">Remaining Balance</span>
+                                <span class="ps-kpi-value ps-text-amber">₹ {formattedTotalPending}</span>
+                                <span class="ps-kpi-sub">{summaryStats.pendingCount} EMIs remaining</span>
+                            </div>
+                        </div>
+
+                        <div class="ps-kpi-card">
+                            <div class="ps-kpi-icon ps-icon-red">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                            </div>
+                            <div class="ps-kpi-content">
+                                <span class="ps-kpi-label">Overdue EMIs</span>
+                                <span class="ps-kpi-value ps-text-red">{summaryStats.overdueCount}</span>
+                                <span class="ps-kpi-sub">Immediate action required</span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- 0-100% Repayment Progress Bar -->
+                <template if:true={summaryStats}>
+                    <div class="ps-progress-box">
+                        <div class="ps-progress-header">
+                            <div class="ps-progress-info">
+                                <span class="ps-progress-title">Loan Repayment Progress</span>
+                                <span class="ps-progress-sub">{summaryStats.paidCount} of {summaryStats.totalCount} installments cleared &bull; Instant Email Receipts Active</span>
+                            </div>
+                            <div class="ps-progress-pct">{summaryStats.progressPct}%</div>
+                        </div>
+                        <div class="ps-progress-track">
+                            <div class="ps-progress-fill" style={progressBarStyle}></div>
+                        </div>
+                        <div class="ps-progress-milestones">
+                            <span>0%</span>
+                            <span>25%</span>
+                            <span>50%</span>
+                            <span>75%</span>
+                            <span>100% Repaid</span>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Loan Terms Strip -->
+                <template if:true={loanDetails}>
+                    <div class="ps-loan-param-strip">
+                        <div class="ps-param-item">
+                            <span class="ps-param-label">Sanctioned Principal</span>
+                            <span class="ps-param-value">₹ {formattedPrincipal}</span>
+                        </div>
+                        <div class="ps-param-divider"></div>
+                        <div class="ps-param-item">
+                            <span class="ps-param-label">Interest Rate</span>
+                            <span class="ps-param-value">{loanDetails.Interest_Rate__c}% p.a.</span>
+                        </div>
+                        <div class="ps-param-divider"></div>
+                        <div class="ps-param-item">
+                            <span class="ps-param-label">Tenure</span>
+                            <span class="ps-param-value">{loanDetails.Tenure_Months__c} Months</span>
+                        </div>
+                        <div class="ps-param-divider"></div>
+                        <div class="ps-param-item">
+                            <span class="ps-param-label">Monthly EMI</span>
+                            <span class="ps-param-value ps-text-indigo">₹ {formattedEMI}</span>
+                        </div>
+                        <div class="ps-param-divider"></div>
+                        <div class="ps-param-item">
+                            <span class="ps-param-label">Total Payable</span>
+                            <span class="ps-param-value">₹ {formattedTotalPayable}</span>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Table Toolbar -->
+                <div class="ps-table-toolbar">
+                    <div class="ps-toolbar-left">
+                        <h2 class="ps-table-heading">My Repayment Schedule</h2>
+                        <span class="ps-badge-counter">{scheduleCount} installments</span>
+                    </div>
+                    <div class="ps-toolbar-right">
+                        <div class="ps-search-box">
+                            <svg class="ps-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input
+                                type="text"
+                                class="ps-search-input"
+                                placeholder="Search installments..."
+                                value={searchTerm}
+                                oninput={handleSearch}
+                            />
+                        </div>
+                        <div class="ps-filter-tabs">
+                            <button class={filterAllClass} onclick={handleFilterAll}>All</button>
+                            <button class={filterPendingClass} onclick={handleFilterPending}>Pending</button>
+                            <button class={filterPaidClass} onclick={handleFilterPaid}>Paid</button>
+                            <button class={filterOverdueClass} onclick={handleFilterOverdue}>Overdue</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Repayment Schedule Table -->
+                <div class="ps-table-wrapper">
+                    <template if:true={hasSchedules}>
+                        <table class="ps-table">
+                            <thead>
+                                <tr>
+                                    <th class="ps-th ps-th-num">#</th>
+                                    <th class="ps-th">Installment Ref</th>
+                                    <th class="ps-th ps-th-right">EMI Amount</th>
+                                    <th class="ps-th ps-th-right">Principal</th>
+                                    <th class="ps-th ps-th-right">Interest</th>
+                                    <th class="ps-th ps-th-right">Remaining</th>
+                                    <th class="ps-th">Due Date</th>
+                                    <th class="ps-th ps-th-center">Status</th>
+                                    <th class="ps-th ps-th-center">Payment Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={filteredSchedules} for:item="s">
+                                    <tr key={s.Id} class={s.rowClass}>
+                                        <td class="ps-td ps-td-num">{s.rowIndex}</td>
+                                        <td class="ps-td">
+                                            <div class="ps-emi-cell">
+                                                <span class="ps-emi-dot" data-status={s.Status__c}></span>
+                                                <span class="ps-emi-name">{s.Name}</span>
+                                            </div>
+                                        </td>
+                                        <td class="ps-td ps-td-right ps-td-bold">₹ {s.formattedEmi}</td>
+                                        <td class="ps-td ps-td-right ps-td-muted">₹ {s.formattedPrincipal}</td>
+                                        <td class="ps-td ps-td-right ps-td-muted">₹ {s.formattedInterest}</td>
+                                        <td class="ps-td ps-td-right ps-td-muted">₹ {s.formattedBalance}</td>
+                                        <td class="ps-td">
+                                            <span class="ps-date-badge">{s.dueDateFormatted}</span>
+                                        </td>
+                                        <td class="ps-td ps-td-center">
+                                            <span class={s.statusBadgeClass}>{s.Status__c}</span>
+                                        </td>
+                                        <td class="ps-td ps-td-center">
+                                            <template if:false={s.isPaid}>
+                                                <button
+                                                    class="ps-btn-pay"
+                                                    onclick={handleMarkPaid}
+                                                    data-id={s.Id}
+                                                    data-name={s.Name}
+                                                    disabled={s.isProcessing}>
+                                                    <template if:false={s.isProcessing}>
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                                        </svg>
+                                                        Pay Now
+                                                    </template>
+                                                    <template if:true={s.isProcessing}>
+                                                        <span class="ps-btn-spinner"></span>
+                                                        Processing...
+                                                    </template>
+                                                </button>
+                                            </template>
+                                            <template if:true={s.isPaid}>
+                                                <span class="ps-paid-pill">
+                                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                                    </svg>
+                                                    Paid
+                                                </span>
+                                            </template>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </template>
+
+                    <template if:false={hasSchedules}>
+                        <div class="ps-empty-card">
+                            <div class="ps-empty-icon">
+                                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="4" width="18" height="16" rx="3"></rect>
+                                    <line x1="8" y1="9" x2="16" y2="9"></line>
+                                    <line x1="8" y1="13" x2="14" y2="13"></line>
+                                </svg>
+                            </div>
+                            <h3 class="ps-empty-title">No Active Loan Schedules Found</h3>
+                            <p class="ps-empty-text">
+                                You do not have any approved active loans under <strong>{currentUserEmail}</strong>. Apply for a new loan below to get started!
+                            </p>
+                            <button class="ps-btn ps-btn-primary" onclick={handleOpenApplyModal}>Apply for a Loan</button>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </template>
+
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             MODAL 1: APPLY FOR NEW LOAN (WITH LIVE REAL-TIME EMI CALCULATOR)
+        ════════════════════════════════════════════════════════════════════ -->
+        <template if:true={showApplyModal}>
+            <div class="ps-modal-backdrop">
+                <div class="ps-modal-card">
+                    <div class="ps-modal-header">
+                        <div>
+                            <span class="ps-modal-tag">FINSPECTRA APPLICATION</span>
+                            <h3 class="ps-modal-title">Submit Loan Application</h3>
+                        </div>
+                        <button class="ps-modal-close" onclick={handleCloseApplyModal}>&times;</button>
+                    </div>
+                    
+                    <div class="ps-modal-body">
+                        <div class="ps-form-grid">
+                            <div class="ps-form-group">
+                                <label class="ps-label">Borrower Full Name *</label>
+                                <input type="text" class="ps-input" value={applyForm.borrowerName} oninput={handleApplyInput} data-field="borrowerName" placeholder="e.g. Priya Sharma" />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Borrower Email Address *</label>
+                                <input type="email" class="ps-input" value={applyForm.borrowerEmail} oninput={handleApplyInput} data-field="borrowerEmail" placeholder="e.g. priya.sharma@example.com" />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Principal Amount (₹) *</label>
+                                <input type="number" class="ps-input" value={applyForm.principal} oninput={handleApplyInput} data-field="principal" placeholder="500000" />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Annual Interest Rate (% p.a.)</label>
+                                <input type="number" step="0.1" class="ps-input" value={applyForm.interestRate} oninput={handleApplyInput} data-field="interestRate" placeholder="10.5" />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Tenure (Months) *</label>
+                                <input type="number" class="ps-input" value={applyForm.tenure} oninput={handleApplyInput} data-field="tenure" placeholder="12" />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Loan Product Type</label>
+                                <select class="ps-input" value={applyForm.loanType} onchange={handleApplyInput} data-field="loanType">
+                                    <option value="Personal Loan">Personal Loan</option>
+                                    <option value="Home Loan">Home Loan</option>
+                                    <option value="Auto Loan">Auto Loan</option>
+                                    <option value="Business Loan">Business Loan</option>
+                                    <option value="Education Loan">Education Loan</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Real-Time Dynamic EMI Preview Box -->
+                        <div class="ps-calculator-box">
+                            <div class="ps-calc-header">
+                                <span class="ps-calc-label">ESTIMATED REPAYMENT TERMS (LIVE PREVIEW)</span>
+                            </div>
+                            <div class="ps-calc-grid">
+                                <div>
+                                    <span class="ps-calc-sub">Monthly EMI:</span>
+                                    <div class="ps-calc-value ps-text-green">₹ {previewEMI}</div>
+                                </div>
+                                <div>
+                                    <span class="ps-calc-sub">Total Interest:</span>
+                                    <div class="ps-calc-value ps-text-amber">₹ {previewInterest}</div>
+                                </div>
+                                <div>
+                                    <span class="ps-calc-sub">Total Payable:</span>
+                                    <div class="ps-calc-value">₹ {previewTotalPayable}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ps-modal-footer">
+                        <button class="ps-btn ps-btn-ghost" onclick={handleCloseApplyModal}>Cancel</button>
+                        <button class="ps-btn ps-btn-primary" onclick={handleSubmitApplication}>Submit Application</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             MODAL 2: EDIT BORROWER PROFILE & TERMS
+        ════════════════════════════════════════════════════════════════════ -->
+        <template if:true={showEditModal}>
+            <div class="ps-modal-backdrop">
+                <div class="ps-modal-card">
+                    <div class="ps-modal-header">
+                        <div>
+                            <span class="ps-modal-tag">PROFILE & LOAN TERMS</span>
+                            <h3 class="ps-modal-title">Modify Borrower Details</h3>
+                        </div>
+                        <button class="ps-modal-close" onclick={handleCloseEditModal}>&times;</button>
+                    </div>
+                    
+                    <div class="ps-modal-body">
+                        <p class="ps-modal-desc">Modifications will trigger a transactional notification email to the borrower's registered email address.</p>
+                        <div class="ps-form-grid">
+                            <div class="ps-form-group">
+                                <label class="ps-label">Borrower Name</label>
+                                <input type="text" class="ps-input" value={editForm.borrowerName} oninput={handleEditInput} data-field="borrowerName" />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Borrower Email</label>
+                                <input type="email" class="ps-input" value={editForm.borrowerEmail} oninput={handleEditInput} data-field="borrowerEmail" />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Principal Amount (₹)</label>
+                                <input type="number" class="ps-input" value={editForm.principal} oninput={handleEditInput} data-field="principal" />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Interest Rate (% p.a.)</label>
+                                <input type="number" step="0.1" class="ps-input" value={editForm.interestRate} oninput={handleEditInput} data-field="interestRate" />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Tenure (Months)</label>
+                                <input type="number" class="ps-input" value={editForm.tenure} oninput={handleEditInput} data-field="tenure" />
+                            </div>
+                            <div class="ps-form-group">
+                                <label class="ps-label">Loan Type</label>
+                                <input type="text" class="ps-input" value={editForm.loanType} oninput={handleEditInput} data-field="loanType" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ps-modal-footer">
+                        <button class="ps-btn ps-btn-ghost" onclick={handleCloseEditModal}>Cancel</button>
+                        <button class="ps-btn ps-btn-primary" onclick={handleSaveProfileChanges}>Save & Notify Borrower</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             MODAL 3: DRILLDOWN REPAYMENT SCHEDULE MODAL FOR ADMIN
+        ════════════════════════════════════════════════════════════════════ -->
+        <template if:true={showDrilldownModal}>
+            <div class="ps-modal-backdrop">
+                <div class="ps-modal-card ps-modal-large">
+                    <div class="ps-modal-header">
+                        <div>
+                            <span class="ps-modal-tag">AMORTIZATION LEDGER</span>
+                            <h3 class="ps-modal-title">EMI Schedule: {drilldownLoanName} ({drilldownBorrower})</h3>
+                        </div>
+                        <button class="ps-modal-close" onclick={handleCloseDrilldownModal}>&times;</button>
+                    </div>
+                    
+                    <div class="ps-modal-body">
+                        <div class="ps-table-wrapper">
+                            <table class="ps-table">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-th">Installment Ref</th>
+                                        <th class="ps-th ps-th-right">EMI Amount</th>
+                                        <th class="ps-th ps-th-right">Principal</th>
+                                        <th class="ps-th ps-th-right">Interest</th>
+                                        <th class="ps-th ps-th-right">Remaining</th>
+                                        <th class="ps-th">Due Date</th>
+                                        <th class="ps-th ps-th-center">Status</th>
+                                        <th class="ps-th ps-th-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={drilldownSchedules} for:item="ds">
+                                        <tr key={ds.Id} class="ps-row">
+                                            <td class="ps-td ps-td-bold">{ds.Name}</td>
+                                            <td class="ps-td ps-td-right ps-td-bold">₹ {ds.formattedEmi}</td>
+                                            <td class="ps-td ps-td-right ps-td-muted">₹ {ds.formattedPrincipal}</td>
+                                            <td class="ps-td ps-td-right ps-td-muted">₹ {ds.formattedInterest}</td>
+                                            <td class="ps-td ps-td-right ps-td-muted">₹ {ds.formattedBalance}</td>
+                                            <td class="ps-td">{ds.dueDateFormatted}</td>
+                                            <td class="ps-td ps-td-center">
+                                                <span class={ds.statusBadgeClass}>{ds.Status__c}</span>
+                                            </td>
+                                            <td class="ps-td ps-td-center">
+                                                <template if:false={ds.isPaid}>
+                                                    <button class="ps-btn-mini ps-btn-mini-green" onclick={handleDrilldownMarkPaid} data-id={ds.Id}>
+                                                        Mark Paid
+                                                    </button>
+                                                </template>
+                                                <template if:true={ds.isPaid}>
+                                                    <span class="ps-paid-pill">Paid</span>
+                                                </template>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="ps-modal-footer">
+                        <button class="ps-btn ps-btn-ghost" onclick={handleCloseDrilldownModal}>Close</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+
+        <!-- ── Toast Notifications ──────────────────────────────────────────── -->
         <template if:true={showToast}>
             <div class={toastClass} role="alert">
                 <div class="ps-toast-icon">
@@ -361,7 +934,7 @@
                     <span class="ps-toast-title">{toastTitle}</span>
                     <span class="ps-toast-message">{toastMessage}</span>
                 </div>
-                <button class="ps-toast-close" onclick={handleCloseToast}>×</button>
+                <button class="ps-toast-close" onclick={handleCloseToast}>&times;</button>
             </div>
         </template>
 
